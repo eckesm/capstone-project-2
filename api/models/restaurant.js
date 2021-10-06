@@ -5,6 +5,7 @@ const { NotFoundError, BadRequestError, UnauthrorizedError } = require('../expre
 const Restaurant_User = require('./restaurant_user');
 
 class Restaurant {
+
 	/** REGISTER
 	 * Adds restaurant to the database.
      * 

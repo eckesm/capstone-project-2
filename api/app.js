@@ -7,6 +7,7 @@ const { authenticateJWT } = require('./middleware/auth');
 const authRoutes = require('./routes/auth');
 const usersRoutes = require('./routes/user');
 const restaurantsRoutes = require('./routes/restaurants');
+const catGroupsRoutes = require('./routes/catGroups');
 
 const app = express();
 app.use(cors());
@@ -16,6 +17,7 @@ app.use(authenticateJWT);
 app.use('/auth', authRoutes);
 app.use('/users', usersRoutes);
 app.use('/restaurants', restaurantsRoutes);
+app.use('/catgroups', catGroupsRoutes);
 
 /** 404 catch --- pass to the next handler. */
 app.use(function(req, res, next) {

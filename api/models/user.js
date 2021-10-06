@@ -84,7 +84,7 @@ class User {
 		);
 
 		const user = result.rows[0];
-		if (!user) throw new NotFoundError(`There is no user with the id ${id}.`);
+		if (!user) throw new NotFoundError(`There is no user with the ID ${id}.`);
 
 		const userRestaurantsRes = await db.query(
 			`SELECT restaurant_id, is_admin
@@ -149,7 +149,7 @@ class User {
 			[ id ]
 		);
 		const user = result.rows[0];
-		if (!user) throw new NotFoundError(`There is no user with the id ${id}.`);
+		if (!user) throw new NotFoundError(`There is no user with the ID ${id}.`);
 	}
 }
 

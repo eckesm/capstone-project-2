@@ -35,6 +35,8 @@ router.post('/:restaurantId/users/:newUserId', ensureLoggedIn, async function(re
 	try {
 		const userId = res.locals.user.id;
 		const { restaurantId, newUserId } = req.params;
+
+		// Check that user is admin for restaurant
 		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			const newRestUser = await Restaurant_User.register(restaurantId, newUserId, false);
@@ -70,6 +72,8 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
 		const restaurantId = req.params.id;
 		const userId = res.locals.user.id;
+
+		// Check that user is admin for restaurant
 		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			const restaurant = await Restaurant.update(restaurantId, req.body);
@@ -90,6 +94,8 @@ router.delete('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
 		const restaurantId = req.params.id;
 		const userId = res.locals.user.id;
+
+		// Check that user is admin for restaurant
 		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			await Restaurant.remove(restaurantId);

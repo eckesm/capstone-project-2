@@ -17,7 +17,7 @@ VALUES ('eckesm@gmail.com',
         '$2b$12$wViEIprZC57kCD9GOIUhG.kfEXZhdlyVb5KgLInSe31z1bgLJ3qku');
 
 INSERT INTO restaurants (owner_id, name, address, phone, email, website, notes)
-VALUES (1,
+VALUES  (1,
         'Nickys Pizzeria',
         '123 Main Street, Larchmont, NY 10538',
         '(555) 555-5555',
@@ -26,4 +26,18 @@ VALUES (1,
         'The best pizza place in Larchmont!');
 
 INSERT INTO restaurants_users (restaurant_id, user_id, is_admin)
-VALUES (1,1,True);
+VALUES  (1,1,True);
+
+INSERT INTO cat_groups(restaurant_id,name,notes)
+VALUES  (1,'Beverages','Only alcoholic beverages.'),
+        (1,'Food & Non-Alcoholic Beverages','');
+
+INSERT INTO categories(restaurant_id,name,cogs_percent,notes)
+VALUES  (1,'Wine',0.30,''),
+        (1,'Beer',0.10,''),
+        (1,'Liquor',0.20,'');
+
+INSERT INTO cat_groups_categories(cat_group_id,category_id,restaurant_id)
+VALUES  (1,1,1),
+        (1,2,1),
+        (1,3,1);

@@ -2,6 +2,8 @@
 
 const db = require('../db');
 const { NotFoundError, BadRequestError, UnauthrorizedError } = require('../expressError');
+const User = require('./user');
+const { checkRestaurantExists, checkUserExists } = require('../helpers/checkExist');
 
 class Restaurant_User {
 	/** REGISTER ASSOCIATION
@@ -11,32 +13,19 @@ class Restaurant_User {
      * Returns: {id, restaurantId, userId, isAdmin}
      */
 	static async register(restaurantId, userId, isAdmin) {
-		const restRes = await db.query(
-			`SELECT id
-			FROM restaurants
-			WHERE id = $1`,
-			[ restaurantId ]
-		);
-		if (!restRes.rows[0]) throw new NotFoundError(`There is no restaurant with ID ${restaurantId}.`);
+		const restRes = await checkRestaurantExists(restaurantId);
+		if (!restRes) throw new NotFoundError(`There is no restaurant with ID ${restaurantId}.`);
+		const userRes = await checkUserExists(userId);
+		if (!userRes) throw new NotFoundError(`There is no user with ID ${userId}.`);
 
-		const userRes = await db.query(
-			`SELECT id
-			FROM users
-			WHERE id = $1`,
-			[ userId ]
-		);
-		if (!userRes.rows[0]) throw new NotFoundError(`There is no user with ID ${userId}.`);
-
-		// ISSUE
 		const duplicateCheck = await db.query(
 			`SELECT restaurant_id, user_id, is_admin
 		    FROM restaurants_users
-		    WHERE restaurant_id = $1, user_id = $2`,
+		    WHERE restaurant_id = $1 AND user_id = $2`,
 			[ restaurantId, userId ]
 		);
 		if (duplicateCheck.rows[0])
 			throw new BadRequestError(`User ${userId} is already associated with restaurant ${restaurantId}.`);
-		// -------------------------
 
 		const result = await db.query(
 			`INSERT INTO restaurants_users (restaurant_id, user_id, is_admin)
@@ -49,28 +38,28 @@ class Restaurant_User {
 		return restUser;
 	}
 
-	// ISSUE
 	/** CHECK IF ADMIN
-		 * Checks if a given user is an admin of a given restaurant.
-		 * 
-		 * Accepts: restaurantId, userId
-		 * Returns: true / false
-		 */
-	// ISSUE
+	 * Checks if a given user is an admin of a given restaurant.
+	 * 
+	 * Accepts: restaurantId, userId
+	 * Returns: true / false
+	 */
 	static async checkUserIsRestAdmin(restaurantId, userId) {
-		console.log(restaurantId, userId);
+		const restRes = await checkRestaurantExists(restaurantId);
+		if (!restRes) throw new NotFoundError(`There is no restaurant with ID ${restaurantId}.`);
+		const userRes = await checkUserExists(userId);
+		if (!userRes) throw new NotFoundError(`There is no user with ID ${userId}.`);
+
 		const result = await db.query(
 			`SELECT restaurant_id, user_id, is_admin
-				FROM restaurants_users
-				WHERE restaurant_id = $1, user_id = $2`,
+			FROM restaurants_users
+			WHERE restaurant_id = $1 AND user_id = $2`,
 			[ restaurantId, userId ]
 		);
 		const restUser = result.rows[0];
-		console.log(restUser);
 		if (restUser && restUser.is_admin === true) return true;
 		return false;
 	}
-	// -------------------------
 }
 
 module.exports = Restaurant_User;
