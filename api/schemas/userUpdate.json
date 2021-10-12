@@ -1,0 +1,49 @@
+{
+	"$id": "http://example.com/example.json",
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"default": {},
+	"description": "The userUpdate schema comprises the entire JSON document.",
+	"examples": [
+		{
+			"emailAddress": "smithj@gmail.com",
+			"firstName": "Jane",
+			"lastName": "Smith"
+		}
+	],
+	"required": [ "emailAddress", "firstName", "lastName" ],
+	"title": "userUpdate: schema for updating a user.",
+	"type": "object",
+	"properties": {
+		"emailAddress": {
+			"$id": "#/properties/emailAddress",
+			"type": "string",
+			"title": "The emailAddress schema",
+            "maxLength": 60,
+            "minLength": 6,
+			"description": "An explanation about the purpose of this instance.",
+			"default": "",
+			"examples": [ "smithj@gmail.com" ]
+		},
+		"firstName": {
+			"$id": "#/properties/firstName",
+			"type": "string",
+			"title": "The firstName schema",
+            "maxLength": 50,
+            "minLength": 1,
+			"description": "An explanation about the purpose of this instance.",
+			"default": "",
+			"examples": [ "Jane" ]
+		},
+		"lastName": {
+			"$id": "#/properties/lastName",
+			"type": "string",
+			"title": "The lastName schema",
+            "maxLength": 50,
+            "minLength": 1,
+			"description": "An explanation about the purpose of this instance.",
+			"default": "",
+			"examples": [ "Smith" ]
+		}
+	},
+	"additionalProperties": true
+}

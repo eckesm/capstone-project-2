@@ -2,13 +2,17 @@
 
 const express = require('express');
 const router = new express.Router();
+const jsonschema = require('jsonschema');
 
-const { ExpressError, UnauthrorizedError } = require('../expressError');
-const User = require('../models/user');
-const Restaurant = require('../models/restaurant');
+const { BadRequestError, ExpressError, UnauthrorizedError } = require('../expressError');
 const { createToken } = require('../helpers/tokens');
 const { ensureLoggedIn } = require('../middleware/auth');
+
+const Restaurant = require('../models/restaurant');
 const Restaurant_User = require('../models/restaurant_user');
+const User = require('../models/user');
+const restaurantNewSchema = require('../schemas/restaurantNew.json');
+const restaurantUpdateSchema = require('../schemas/restaurantUpdate.json');
 
 /** POST /
  * Adds a restaurant to the database.
@@ -18,6 +22,11 @@ const Restaurant_User = require('../models/restaurant_user');
  */
 router.post('/', ensureLoggedIn, async function(req, res, next) {
 	try {
+		const validator = jsonschema.validate(req.body, restaurantNewSchema);
+		if (!validator.valid) {
+			const errs = validator.errors.map(e => e.stack);
+			throw new BadRequestError(errs);
+		}
 		const ownerId = res.locals.user.id;
 		const restaurant = await Restaurant.register(ownerId, req.body);
 		return res.status(201).json({ restaurant });
@@ -70,6 +79,11 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
  */
 router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
+		const validator = jsonschema.validate(req.body, restaurantUpdateSchema);
+		if (!validator.valid) {
+			const errs = validator.errors.map(e => e.stack);
+			throw new BadRequestError(errs);
+		}
 		const restaurantId = req.params.id;
 		const userId = res.locals.user.id;
 

@@ -1,0 +1,34 @@
+{
+	"$id": "http://example.com/example.json",
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"default": {},
+	"description": "The authToken schema comprises the entire JSON document.",
+	"examples": [
+		{
+			"emailAddress": "smithjane@gmail.com",
+			"password": "janelovescats123"
+		}
+	],
+	"required": [ "emailAddress", "password" ],
+	"title": "authToken: schema for creating an authorization token for a logged-in user.",
+	"type": "object",
+	"properties": {
+		"emailAddress": {
+			"$id": "#/properties/emailAddress",
+			"type": "string",
+			"title": "The emailAddress schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": "",
+			"examples": [ "smithjane@gmail.com" ]
+		},
+		"password": {
+			"$id": "#/properties/password",
+			"default": "",
+			"description": "An explanation about the purpose of this instance.",
+			"examples": [ "janelovescats123" ],
+			"title": "The password schema",
+			"type": "string"
+		}
+	},
+	"additionalProperties": true
+}

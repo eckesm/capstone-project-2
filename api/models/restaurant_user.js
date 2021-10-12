@@ -38,6 +38,29 @@ class Restaurant_User {
 		return restUser;
 	}
 
+	/** CHECK IF ACCESS
+	 * Checks if a given user is a user or admin of a given restaurant.
+	 * 
+	 * Accepts: restaurantId, userId
+	 * Returns: true / false
+	 */
+	static async checkUserIsRestAccess(restaurantId, userId) {
+		const restRes = await checkRestaurantExists(restaurantId);
+		if (!restRes) throw new NotFoundError(`There is no restaurant with ID ${restaurantId}.`);
+		const userRes = await checkUserExists(userId);
+		if (!userRes) throw new NotFoundError(`There is no user with ID ${userId}.`);
+
+		const result = await db.query(
+			`SELECT restaurant_id, user_id
+			FROM restaurants_users
+			WHERE restaurant_id = $1 AND user_id = $2`,
+			[ restaurantId, userId ]
+		);
+		const restUser = result.rows[0];
+		if (restUser) return true;
+		return false;
+	}
+
 	/** CHECK IF ADMIN
 	 * Checks if a given user is an admin of a given restaurant.
 	 * 

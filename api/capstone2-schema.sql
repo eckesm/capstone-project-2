@@ -32,7 +32,7 @@ CREATE TABLE cat_groups (
   id SERIAL PRIMARY KEY,
   restaurant_id INTEGER
     REFERENCES restaurants(id) ON DELETE CASCADE,
-  name VARCHAR(50) UNIQUE NOT NULL,
+  name VARCHAR(50) NOT NULL,
   notes TEXT
 );
 

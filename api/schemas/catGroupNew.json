@@ -1,0 +1,45 @@
+{
+	"$id": "http://example.com/example.json",
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"default": {},
+	"description": "The catGroupNew schema comprises the entire JSON document.",
+	"examples": [
+		{
+			"restaurantId": 1,
+			"name": "Retail",
+			"notes": "Hats, shirts, bags, etc."
+		}
+	],
+	"required": [ "restaurantId", "name" ],
+	"title": "catGroupNew: schema for creating a new category group.",
+	"type": "object",
+	"properties": {
+		"restaurantId": {
+			"$id": "#/properties/restaurantId",
+			"type": "integer",
+			"title": "The restaurantId schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": 0,
+			"examples": [ 1 ]
+		},
+		"name": {
+			"$id": "#/properties/name",
+			"default": "",
+			"description": "An explanation about the purpose of this instance.",
+			"examples": [ "Retail" ],
+			"title": "The name schema",
+			"maxLength": 50,
+			"minLength": 1,
+			"type": "string"
+		},
+		"notes": {
+			"$id": "#/properties/notes",
+			"type": "string",
+			"title": "The notes schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": "",
+			"examples": [ "Hats, shirts, bags, etc." ]
+		}
+	},
+	"additionalProperties": true
+}

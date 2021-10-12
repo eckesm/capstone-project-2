@@ -1,7 +1,7 @@
 'use strict';
 
 const db = require('../db');
-const { BadRequestError } = require('../expressError');
+const { BadRequestError, NotFoundError } = require('../expressError');
 
 class CatGroup {
 	/** REGISTER
@@ -31,6 +31,63 @@ class CatGroup {
 		);
 		const catGroup = result.rows[0];
 		return catGroup;
+	}
+
+	/** GET 
+	 * Get a single category group by ID.
+	 * 
+	 * Accepts: id
+	 * Returns: {id, restaurantId, name, notes}
+	 * 
+	 * Throws NotFoundError if category group does not exist.
+	 */
+	static async get(id) {
+		const result = await db.query(
+			`SELECT id, restaurant_id AS "restaurantId", name, notes
+			FROM cat_groups
+			WHERE id = $1`,
+			[ id ]
+		);
+		const catGroup = result.rows[0];
+		if (!catGroup) throw new NotFoundError(`There is no category group with the id ${id}.`);
+		return catGroup;
+	}
+
+	/** UPDATE
+	 * Replace category group's name, notes.
+	 * 
+	 * Accepts: id, {name, notes}
+	 * Returns: {id, restaurantId, name, notes}
+	 */
+	static async update(id, { name, notes }) {
+		const result = await db.query(
+			`UPDATE cat_groups
+			SET name = $1, notes = $2
+			WHERE id = $3
+			RETURNING id, restaurant_id as "restaurantId", name, notes`,
+			[ name, notes, id ]
+		);
+		const catGroup = result.rows[0];
+		return catGroup;
+	}
+
+	/** REMOVE
+	 * Deletes a category group from the database.
+	 * 
+	 * Accepts: id
+	 * Returns: (nothing)
+	 * 
+	 * Throws NotFoundError if category group does not exist.
+	 */
+	static async remove(id) {
+		const result = await db.query(
+			`DELETE FROM cat_groups
+			WHERE id = $1
+			RETURNING id`,
+			[ id ]
+		);
+		const catGroup = result.rows[0];
+		if (!catGroup) throw new NotFoundError(`There is no category group with the id ${id}.`);
 	}
 }
 

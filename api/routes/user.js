@@ -2,19 +2,28 @@
 
 const express = require('express');
 const router = new express.Router();
+const jsonschema = require('jsonschema');
 
-const { ExpressError, UnauthrorizedError } = require('../expressError');
-const User = require('../models/user');
+const { ExpressError, UnauthrorizedError, BadRequestError } = require('../expressError');
 const { createToken } = require('../helpers/tokens');
 const { ensureCorrectUser } = require('../middleware/auth');
+
+const User = require('../models/user');
+const userNewSchema = require('../schemas/userNew.json');
+const userUpdateSchema = require('../schemas/userUpdate.json');
 
 /** POST /
  * Adds a user to the database.
  * Accepts JSON: {emailAddress, firstName, lastName, password}
  * Returns JSON: {user: {emailAddress, firstName, lastName}, token}
  */
- router.post('/', async function(req, res, next) {
+router.post('/', async function(req, res, next) {
 	try {
+		const validator = jsonschema.validate(req.body, userNewSchema);
+		if (!validator.valid) {
+			const errs = validator.errors.map(e => e.stack);
+			throw new BadRequestError(errs);
+		}
 		const user = await User.register(req.body);
 		const token = createToken(user);
 		return res.status(201).json({ user, token });
@@ -45,6 +54,11 @@ router.get('/:id', ensureCorrectUser, async function(req, res, next) {
  */
 router.put('/:id', ensureCorrectUser, async function(req, res, next) {
 	try {
+		const validator = jsonschema.validate(req.body, userUpdateSchema);
+		if (!validator.valid) {
+			const errs = validator.errors.map(e => e.stack);
+			throw new BadRequestError(errs);
+		}
 		const user = await User.update(req.params.id, req.body);
 		return res.status(200).json({ user });
 	} catch (error) {
