@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth');
 const usersRoutes = require('./routes/user');
 const restaurantsRoutes = require('./routes/restaurants');
 const catGroupsRoutes = require('./routes/catGroups');
+const categoriesRoutes=require('./routes/categories')
 
 const app = express();
 app.use(cors());
@@ -18,6 +19,7 @@ app.use('/auth', authRoutes);
 app.use('/users', usersRoutes);
 app.use('/restaurants', restaurantsRoutes);
 app.use('/catgroups', catGroupsRoutes);
+app.use('/categories', categoriesRoutes);
 
 /** 404 catch --- pass to the next handler. */
 app.use(function(req, res, next) {

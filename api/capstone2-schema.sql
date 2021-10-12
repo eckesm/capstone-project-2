@@ -40,7 +40,7 @@ CREATE TABLE categories (
   id SERIAL PRIMARY KEY,
   restaurant_id INTEGER
     REFERENCES restaurants(id) ON DELETE CASCADE,
-  name VARCHAR(50) UNIQUE NOT NULL,
+  name VARCHAR(50) NOT NULL,
   cogs_percent DECIMAL(4,4),
   notes TEXT
 );
