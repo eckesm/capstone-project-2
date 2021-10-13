@@ -29,8 +29,7 @@ class Category {
             RETURNING id, restaurant_id AS "restaurantId", name, cat_group_id AS "catGroupId", cogs_percent AS "cogsPercent", notes`,
 			[ restaurantId, name, catGroupId, cogsPercent, notes ]
 		);
-		const category = result.rows[0];
-		return category;
+		return result.rows[0];
 	}
 
 	/** GET 
@@ -99,8 +98,7 @@ class Category {
 			RETURNING id, restaurant_id as "restaurantId", name, cat_group_id AS "catGroupId", cogs_percent AS "cogsPercent", notes`,
 			[ name, catGroupId, cogsPercent, notes, id ]
 		);
-		const category = result.rows[0];
-		return category;
+		return result.rows[0];
 	}
 
 	/** CHANGE CATEGORY GROUP
@@ -129,8 +127,7 @@ class Category {
 				[ catGroupId, id ]
 			);
 		}
-		const category = result.rows[0];
-		return category;
+		return result.rows[0];
 	}
 
 	/** REMOVE

@@ -4,8 +4,7 @@ const express = require('express');
 const router = new express.Router();
 const jsonschema = require('jsonschema');
 
-const { BadRequestError, ExpressError, UnauthrorizedError } = require('../expressError');
-const { createToken } = require('../helpers/tokens');
+const { BadRequestError, UnauthrorizedError } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
 
 const Restaurant = require('../models/restaurant');
@@ -13,14 +12,18 @@ const Restaurant_User = require('../models/restaurant_user');
 const Category = require('../models/category');
 const CatGroup = require('../models/catGroup');
 const MealPeriod = require('../models/mealPeriod');
+const MealPeriod_Category = require('../models/mealPeriod_category');
+
 const restaurantNewSchema = require('../schemas/restaurantNew.json');
 const restaurantUpdateSchema = require('../schemas/restaurantUpdate.json');
 
 /** POST /
  * Adds a restaurant to the database.
+ * 
  * Accepts JSON: {name, address, phone, email, website, notes}
  * Returns JSON: {restaurant: {id, name, address, phone, email, website, notes}}
- * Authorization: ensure a user is logged in.
+ * 
+ * Authorization: ensure logged in.
  */
 router.post('/', ensureLoggedIn, async function(req, res, next) {
 	try {
@@ -39,8 +42,11 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
 
 /** GET /[id]
  * Gets restaurant informaion for a single restaurant.
+ * 
  * Returns JSON: {restaurant: {id, ownerId, name, address, phone, email, website, notes}}
+ * 
  * Authorization: ensure logged in.
+ * Access: all restaurant users.
  */
 router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
@@ -54,6 +60,7 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 			restaurant.categories = await Category.getAllRestaurantCategories(restaurantId);
 			restaurant.catGroups = await CatGroup.getAllRestaurantGroups(restaurantId);
 			restaurant.mealPeriods = await MealPeriod.getAllRestaurantMealPeriods(restaurantId);
+			restaurant.mealPeriod_categories = await MealPeriod_Category.getAllRestaurantMealPeriodCats(restaurantId);
 
 			return res.status(200).json({ restaurant });
 		}
@@ -65,9 +72,12 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 
 /** PUT /[id]
  * Updates information for a restaurant.
+ * 
  * Accepts JSON: {name, address, phone, email, website, notes}
  * Returns JSON: {restaurant: {id, ownerId, name, address, phone, email, website, notes}}
+ * 
  * Authorization: ensure logged in.
+ * Access: only restaurant admins.
  */
 router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
@@ -93,8 +103,11 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 
 /** DELETE /[id]
  * Deletes a restaurant from the database.
+ * 
  * Returns JSON: {deleted: id}
+ * 
  * Authorization: ensure logged in.
+ * Access: only restaurant admins.
  */
 router.delete('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
@@ -115,8 +128,11 @@ router.delete('/:id', ensureLoggedIn, async function(req, res, next) {
 
 /** POST /[restaurantid]/users/[newUserId]
  * Adds a restaurant and user association to the database.
- * Returns JSON: {added user to restaurant: {restaurantId, userId, isAdmin}}
- * Authorization: ensure a user is logged in; only restaurant admins can add users to a restaurant.
+ * 
+ * Returns JSON: {added: {restaurantId, userId, isAdmin}}
+ * 
+ * Authorization: ensure logged in.
+ * Access: only restaurant admins.
  */
 router.post('/:restaurantId/users/:newUserId', ensureLoggedIn, async function(req, res, next) {
 	try {
@@ -128,7 +144,7 @@ router.post('/:restaurantId/users/:newUserId', ensureLoggedIn, async function(re
 		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			const newRestUser = await Restaurant_User.register(restaurantId, newUserId, isAdmin);
-			return res.status(201).json({ 'added user to restaurant': newRestUser });
+			return res.status(201).json({ added: newRestUser });
 		}
 		throw new UnauthrorizedError(`User ${userId} is not authorized to add users to restaurant ${restaurantId}.`);
 	} catch (error) {
@@ -137,9 +153,12 @@ router.post('/:restaurantId/users/:newUserId', ensureLoggedIn, async function(re
 });
 
 /** PUT /[restaurantid]/users/[updateUserId]
- * Adds a restaurant and user association to the database.
- * Returns JSON: {added user to restaurant: {restaurantId, userId, isAdmin}}
- * Authorization: ensure a user is logged in; only restaurant admins can add users to a restaurant.
+ * Updates a restaurant and user association in the database.
+ * 
+ * Returns JSON: {restUser: {restaurantId, userId, isAdmin}}
+ * 
+ * Authorization: ensure logged in.
+ * Access: only restaurant admins.
  */
 router.put('/:restaurantId/users/:updateUserId', ensureLoggedIn, async function(req, res, next) {
 	try {
@@ -151,9 +170,11 @@ router.put('/:restaurantId/users/:updateUserId', ensureLoggedIn, async function(
 		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			const restUser = await Restaurant_User.update(restaurantId, updateUserId, isAdmin);
-			return res.status(201).json({ restUser });
+			return res.status(201).json({ restUser: restUser });
 		}
-		throw new UnauthrorizedError(`User ${userId} is not authorized to add users to restaurant ${restaurantId}.`);
+		throw new UnauthrorizedError(
+			`User ${userId} is not authorized to update users for restaurant ${restaurantId}.`
+		);
 	} catch (error) {
 		return next(error);
 	}
@@ -161,8 +182,11 @@ router.put('/:restaurantId/users/:updateUserId', ensureLoggedIn, async function(
 
 /** DELETE /[restaurantid]/users/[deleteUserId]
  * Deletes a restaurant and user association from the database.
+ * 
  * Returns JSON: {deleted: {restaurantId, userId, isAdmin}}
- * Authorization: ensure a user is logged in; only restaurant admins can delete users from a restaurant.
+ * 
+ * Authorization: ensure logged in.
+ * Access: only restaurant admins.
  */
 router.delete('/:restaurantId/users/:deleteUserId', ensureLoggedIn, async function(req, res, next) {
 	try {

@@ -1,8 +1,7 @@
 'use strict';
 
 const db = require('../db');
-const { NotFoundError, BadRequestError, UnauthrorizedError } = require('../expressError');
-const User = require('./user');
+const { NotFoundError, BadRequestError } = require('../expressError');
 const { checkRestaurantExists, checkUserExists } = require('../helpers/checkExist');
 
 class Restaurant_User {
@@ -11,12 +10,13 @@ class Restaurant_User {
      * 
      * Accepts: {restaurantId, userId, isAdmin}
      * Returns: {id, restaurantId, userId, isAdmin}
+	 * 
+	 * Throws NotFoundError if restaurant or user does not exist.
+	 * Throws BadRequestError if association already exists.
      */
 	static async register(restaurantId, userId, isAdmin) {
-		const restRes = await checkRestaurantExists(restaurantId);
-		if (!restRes) throw new NotFoundError(`There is no restaurant with ID ${restaurantId}.`);
-		const userRes = await checkUserExists(userId);
-		if (!userRes) throw new NotFoundError(`There is no user with ID ${userId}.`);
+		await checkUserExists(userId);
+		await checkRestaurantExists(restaurantId);
 
 		const duplicateCheck = await db.query(
 			`SELECT restaurant_id, user_id, is_admin
@@ -38,18 +38,50 @@ class Restaurant_User {
 		return restUser;
 	}
 
+	/** LOOKUP ASSOCIATION
+	 * Returns info for a single meal period and category association.
+	 * 
+	 * Accepts: restaurantId, userId
+	 * Returns: {restaurantId, userId, isAdmin}
+	 */
+	static async lookup(restaurantId, userId) {
+		const result = await db.query(
+			`SELECT restaurant_id AS "restaurantId", user_id AS "userId", is_admin AS "isAdmin"
+			FROM restaurants_users
+			WHERE restaurant_id = $1 ANE user_id = $2`,
+			[ restaurantId, userId ]
+		);
+		return result.rows[0];
+	}
+
 	/** GET ALL USER FOR RESTAURANT
 	 * Returns array of all users and admins associated with a restaurant.
 	 * 
 	 * Accepts: restaurantId
 	 * Returns: [{restaurantId, userId, isAdmin},...]
 	 */
-	static async getAllRestaurantUsers(restaurantId) {
+	static async getAllRestaurantUsers(id) {
 		const result = await db.query(
 			`SELECT restaurant_id AS "restaurantId", user_id AS "userId", is_admin AS "isAdmin"
 			FROM restaurants_users
 			WHERE restaurant_id = $1`,
-			[ restaurantId ]
+			[ id ]
+		);
+		return result.rows;
+	}
+
+	/** GET ALL RESTAURANTS FOR USER
+	 * Returns array of all restaurants associated with a user.
+	 * 
+	 * Accepts: userId
+	 * Returns: [{restaurantId, userId, isAdmin},...]
+	 */
+	static async getAllUserRestaurants(id) {
+		const result = await db.query(
+			`SELECT restaurant_id AS "restaurantId", user_id AS "userId", is_admin AS "isAdmin"
+				FROM restaurants_users
+				WHERE user_id = $1`,
+			[ id ]
 		);
 		return result.rows;
 	}
@@ -58,7 +90,7 @@ class Restaurant_User {
 	 * Updates user/admin association between a user and a restaurant.
 	 * 
 	 * Accepts: restaurantId, userId, isAdmin
-	 * Returns: [{ restaurantId, userId, isAdmin},...]
+	 * Returns: { restaurantId, userId, isAdmin}
 	 */
 	static async update(restaurantId, userId, isAdmin) {
 		const result = await db.query(
@@ -79,7 +111,7 @@ class Restaurant_User {
      * 
 	 * Throws NotFoundError if association does not exist.
      */
-	 static async remove(restaurantId, userId) {
+	static async remove(restaurantId, userId) {
 		const result = await db.query(
 			`DELETE FROM restaurants_users
 				WHERE restaurant_id = $1 AND user_id = $2
@@ -96,12 +128,12 @@ class Restaurant_User {
 	 * 
 	 * Accepts: restaurantId, userId
 	 * Returns: true / false
+	 * 
+	 * Throws NotFoundError if restaurant or user does not exist.
 	 */
 	static async checkUserIsRestAccess(restaurantId, userId) {
-		const restRes = await checkRestaurantExists(restaurantId);
-		if (!restRes) throw new NotFoundError(`There is no restaurant with ID ${restaurantId}.`);
-		const userRes = await checkUserExists(userId);
-		if (!userRes) throw new NotFoundError(`There is no user with ID ${userId}.`);
+		await checkUserExists(userId);
+		await checkRestaurantExists(restaurantId);
 
 		const result = await db.query(
 			`SELECT restaurant_id, user_id
@@ -119,12 +151,12 @@ class Restaurant_User {
 	 * 
 	 * Accepts: restaurantId, userId
 	 * Returns: true / false
+	 * 
+	 * Throws NotFoundError if restaurant or user does not exist.
 	 */
 	static async checkUserIsRestAdmin(restaurantId, userId) {
-		const restRes = await checkRestaurantExists(restaurantId);
-		if (!restRes) throw new NotFoundError(`There is no restaurant with ID ${restaurantId}.`);
-		const userRes = await checkUserExists(userId);
-		if (!userRes) throw new NotFoundError(`There is no user with ID ${userId}.`);
+		await checkUserExists(userId);
+		await checkRestaurantExists(restaurantId);
 
 		const result = await db.query(
 			`SELECT restaurant_id, user_id, is_admin

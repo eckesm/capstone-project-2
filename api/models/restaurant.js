@@ -1,8 +1,10 @@
 'use strict';
 
 const db = require('../db');
-const { NotFoundError, BadRequestError, UnauthrorizedError } = require('../expressError');
+const { NotFoundError } = require('../expressError');
 const Restaurant_User = require('./restaurant_user');
+
+const { checkRestaurantExists, checkUserExists } = require('../helpers/checkExist');
 
 class Restaurant {
 

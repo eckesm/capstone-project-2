@@ -52,22 +52,6 @@ class MealPeriod {
 		return mealPeriod;
 	}
 
-	/** GET ALL FOR GROUP
-	 * Get all categories for a single group.
-	 * 
-	 * Accepts: catGroupId
-	 * Returns: [{id, restaurantId, name, cogsPercent, notes},...]
-	 */
-	// static async getAllForGroup(catGroupId) {
-	// 	const result = await db.query(
-	// 		`SELECT id, restaurant_id AS "restaurantId", name, cat_group_id AS "catGroupId", cogs_percent AS "cogsPercent", notes
-	// 		FROM categories
-	// 		WHERE cat_group_id = $1`,
-	// 		[ catGroupId ]
-	// 	);
-	// 	return result.rows;
-	// }
-
 	/** GET ALL FOR RESTAURANT
 	 * Returns array of all meal periods associated with a restaurant.
 	 * 

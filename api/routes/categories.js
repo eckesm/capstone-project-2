@@ -4,21 +4,25 @@ const express = require('express');
 const router = new express.Router();
 const jsonschema = require('jsonschema');
 
-const { BadRequestError, ExpressError, UnauthrorizedError } = require('../expressError');
+const { BadRequestError, UnauthrorizedError } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
 
 const Category = require('../models/category');
 const CatGroup = require('../models/catGroup');
 const Restaurant = require('../models/restaurant');
 const Restaurant_User = require('../models/restaurant_user');
+
 const categoryNewSchema = require('../schemas/categoryNew.json');
 const categoryUpdateSchema = require('../schemas/categoryUpdate.json');
 
 /** POST /
  * Adds a category to the database.
+ * 
  * Accepts JSON: {restaurantId, name, catGroupId, cogsPercent, notes}
  * Returns JSON: {category: {id, restaurantId, name, catGroupId, cogsPercent, notes}}
+ * 
  * Authorization: ensure logged in.
+ * Access: only restaurant admins.
  */
 router.post('/', ensureLoggedIn, async function(req, res, next) {
 	try {
@@ -47,8 +51,11 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
 
 /** GET /[id]
  * Gets category informaion for a single category.
+ 
  * Returns JSON: {category: {id, restaurantId, name, catGroupId, cogsPercent, notes}}
+
  * Authorization: ensure logged in.
+ * Access: any restaurant user.
  */
 router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
@@ -79,8 +86,11 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 
 /** PATCH /[categoryId]/catgroup/[catGroupId]
  * Changes category group only for a single category.
+ * 
  * Returns JSON: {category: {id, name, catGroupId, cogsPercent, notes}}
+ * 
  * Authorization: ensure logged in.
+ * Access: only restaurant admins.
  */
 router.patch('/:categoryId/group/:catGroupId', ensureLoggedIn, async function(req, res, next) {
 	try {
@@ -117,9 +127,12 @@ router.patch('/:categoryId/group/:catGroupId', ensureLoggedIn, async function(re
 
 /** PUT /[id]
  * Updates information for a category.
+ * 
  * Accepts JSON: {name, cogsPercent, notes}
  * Returns JSON: {category: {id, name, catGroupId, cogsPercent, notes}}
+ * 
  * Authorization: ensure logged in.
+ * Access: only restaurant admins.
  */
 router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
@@ -148,8 +161,11 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 
 /** DELETE /[id]
  * Deletes a category from the database.
+ * 
  * Returns JSON: {deleted: id}
+ * 
  * Authorization: ensure logged in.
+ * Access: only restaurant admins.
  */
 router.delete('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {

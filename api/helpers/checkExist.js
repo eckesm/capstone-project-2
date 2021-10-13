@@ -1,4 +1,5 @@
 const db = require('../db');
+const { NotFoundError } = require('../expressError');
 
 async function checkRestaurantExists(id) {
 	const result = await db.query(
@@ -8,7 +9,8 @@ async function checkRestaurantExists(id) {
 		[ id ]
 	);
 	if (result.rows[0]) return true;
-	return false;
+	// return false;
+	throw new NotFoundError(`There is no restaurant with ID ${id}.`);
 }
 
 async function checkUserExists(id) {
@@ -19,7 +21,32 @@ async function checkUserExists(id) {
 		[ id ]
 	);
 	if (result.rows[0]) return true;
-	return false;
+	// return false;
+	throw new NotFoundError(`There is no user with ID ${id}.`);
 }
 
-module.exports = { checkRestaurantExists, checkUserExists };
+async function checkMealPeriodExists(id) {
+	const result = await db.query(
+		`SELECT id
+        FROM meal_periods
+        WHERE id = $1`,
+		[ id ]
+	);
+	if (result.rows[0]) return true;
+	throw new NotFoundError(`There is no meal period with ID ${id}.`);
+	// return false;
+}
+
+async function checkCategoryExists(id) {
+	const result = await db.query(
+		`SELECT id
+        FROM categories
+        WHERE id = $1`,
+		[ id ]
+	);
+	if (result.rows[0]) return true;
+	// return false;
+	throw new NotFoundError(`There is no category with ID ${id}.`);
+}
+
+module.exports = { checkRestaurantExists, checkUserExists, checkMealPeriodExists, checkCategoryExists };

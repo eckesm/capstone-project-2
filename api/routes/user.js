@@ -4,16 +4,18 @@ const express = require('express');
 const router = new express.Router();
 const jsonschema = require('jsonschema');
 
-const { ExpressError, UnauthrorizedError, BadRequestError } = require('../expressError');
+const { BadRequestError } = require('../expressError');
 const { createToken } = require('../helpers/tokens');
 const { ensureCorrectUser } = require('../middleware/auth');
 
 const User = require('../models/user');
+
 const userNewSchema = require('../schemas/userNew.json');
 const userUpdateSchema = require('../schemas/userUpdate.json');
 
 /** POST /
  * Adds a user to the database.
+ * 
  * Accepts JSON: {emailAddress, firstName, lastName, password}
  * Returns JSON: {user: {emailAddress, firstName, lastName}, token}
  */
@@ -34,7 +36,9 @@ router.post('/', async function(req, res, next) {
 
 /** GET /[id]
  * Gets user informaion for a single user.
+ * 
  * Returns JSON: {user: {id, emailAddress, firstName, lastName}}
+ * 
  * Authorization: ensure correct user
  */
 router.get('/:id', ensureCorrectUser, async function(req, res, next) {
@@ -48,8 +52,10 @@ router.get('/:id', ensureCorrectUser, async function(req, res, next) {
 
 /** PUT /[id]
  * Updates information for a user.
+ * 
  * Accepts JSON: {emailAddress, firstName, lastName, password}
  * Returns JSON: {user: {id, emailAddress, firstName, lastName}}
+ * 
  * Authorization: ensure correct user
  */
 router.put('/:id', ensureCorrectUser, async function(req, res, next) {
@@ -68,7 +74,9 @@ router.put('/:id', ensureCorrectUser, async function(req, res, next) {
 
 /** DELETE /[id]
  * Deletes a restaurant from the database.
+ * 
  * Returns JSON: {deleted: id}
+ * 
  * Authorization: ensure correct user
  */
 router.delete('/:id', ensureCorrectUser, async function(req, res, next) {

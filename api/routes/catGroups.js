@@ -4,21 +4,25 @@ const express = require('express');
 const router = new express.Router();
 const jsonschema = require('jsonschema');
 
-const { BadRequestError, ExpressError, UnauthrorizedError } = require('../expressError');
+const { BadRequestError, UnauthrorizedError } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
 
 const Category = require('../models/category');
 const CatGroup = require('../models/catGroup');
 const Restaurant = require('../models/restaurant');
 const Restaurant_User = require('../models/restaurant_user');
+
 const catGroupNewSchema = require('../schemas/catGroupNew.json');
 const catGroupUpdateSchema = require('../schemas/catGroupUpdate.json');
 
 /** POST /
  * Adds a category group to the database.
+ * 
  * Accepts JSON: {restaurantId, name, notes}
  * Returns JSON: {catGroup: {id, restaurantId, name, notes}}
+ * 
  * Authorization: ensure logged in.
+ * Access: only restaurant admins.
  */
 router.post('/', ensureLoggedIn, async function(req, res, next) {
 	try {
@@ -37,8 +41,11 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
 
 /** GET /[id]
  * Gets group informaion for a single category group.
+ * 
  * Returns JSON: {catGroup: {id, restaurantId, name, notes}}
+ * 
  * Authorization: ensure logged in.
+ * Access: all restaurant users.
  */
 router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
@@ -66,9 +73,12 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 
 /** PUT /[id]
  * Updates information for a category group.
+ * 
  * Accepts JSON: {restaurantId, name, notes}
  * Returns JSON: {catGroup: {id, restaurantId, name, notes}}
+ * 
  * Authorization: ensure logged in.
+ * Access: only restaurant admins.
  */
 router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
@@ -97,8 +107,11 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 
 /** DELETE /[id]
  * Deletes a category group from the database.
+ * 
  * Returns JSON: {deleted: id}
+ * 
  * Authorization: ensure logged in.
+ * Access: only restaurant admins.
  */
 router.delete('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {

@@ -6,6 +6,7 @@ const db = require('../db');
 const { NotFoundError, BadRequestError, UnauthrorizedError } = require('../expressError');
 
 const { BCRYPT_WORK_FACTOR } = require('../config');
+const Restaurant_User = require('./restaurant_user');
 
 class User {
 	/** AUTHENTICATE 
@@ -86,15 +87,12 @@ class User {
 		const user = result.rows[0];
 		if (!user) throw new NotFoundError(`There is no user with the ID ${id}.`);
 
-		const userRestaurantsRes = await db.query(
-			`SELECT restaurant_id, is_admin
-			FROM restaurants_users
-			WHERE user_id = $1`,
-			[ id ]
-		);
-		user.restaurants = userRestaurantsRes.rows.map(r => {
-			return { restaurantId: r.restaurant_id, isAdmin: r.is_admin };
-		});
+		// user.restaurants = userRestaurantsRes.rows.map(r => {
+		// 	return { restaurantId: r.restaurant_id, isAdmin: r.is_admin };
+		// });
+
+		user.restaurants = await Restaurant_User.getAllUserRestaurants(id);
+
 		return user;
 	}
 
