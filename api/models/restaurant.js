@@ -42,15 +42,11 @@ class Restaurant {
 		const restaurant = result.rows[0];
 		if (!restaurant) throw new NotFoundError(`There is no restaurant with the id ${id}.`);
 
-		const userRestaurantsRes = await db.query(
-			`SELECT user_id, is_admin
-			FROM restaurants_users
-			WHERE restaurant_id = $1`,
-			[ id ]
-		);
-		restaurant.restaurants = userRestaurantsRes.rows.map(u => {
-			return { userId: u.user_id, isAdmin: u.is_admin };
-		});
+		const userRestaurantsRes=await Restaurant_User.getAllRestaurantUsers(id)
+		// restaurant.users = userRestaurantsRes.map(u => {
+		// 	return { userId: u.userId, isAdmin: u.isAdmin };
+		// });
+		restaurant.users=userRestaurantsRes
 		return restaurant;
 	}
 

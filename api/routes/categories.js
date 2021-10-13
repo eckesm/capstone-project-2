@@ -8,6 +8,8 @@ const { BadRequestError, ExpressError, UnauthrorizedError } = require('../expres
 const { ensureLoggedIn } = require('../middleware/auth');
 
 const Category = require('../models/category');
+const CatGroup = require('../models/catGroup');
+const Restaurant = require('../models/restaurant');
 const Restaurant_User = require('../models/restaurant_user');
 const categoryNewSchema = require('../schemas/categoryNew.json');
 const categoryUpdateSchema = require('../schemas/categoryUpdate.json');
@@ -48,9 +50,55 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 		// Check that user has access to the restaurant
 		const checkAccess = await Restaurant_User.checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
+			const restaurant = await Restaurant.get(restaurantId);
+			category.restaurantName = restaurant.name;
+
+			if (category.catGroupId !== null) {
+				const catGroup = await CatGroup.get(category.catGroupId);
+				category.catGroupName = catGroup.name;
+			}
+
 			return res.status(200).json({ category });
 		}
 		throw new UnauthrorizedError(`User ${userId} is not authorized to access category ${categoryId}.`);
+	} catch (error) {
+		return next(error);
+	}
+});
+
+/** PATCH /[categoryId]/catgroup/[catGroupId]
+ * Changes category group only for a single category.
+ * Returns JSON: {category: {id, name, catGroupId, cogsPercent, notes}}
+ * Authorization: ensure logged in.
+ */
+router.patch('/:categoryId/group/:catGroupId', ensureLoggedIn, async function(req, res, next) {
+	try {
+		let { categoryId, catGroupId } = req.params;
+		const userId = res.locals.user.id;
+
+		const checkCategory = await Category.get(categoryId);
+		const restaurantId = checkCategory.restaurantId;
+
+		if (catGroupId === '0') {
+			catGroupId = null;
+		}
+		else {
+			const catGroup = await CatGroup.get(catGroupId);
+			if (restaurantId !== catGroup.restaurantId)
+				throw BadRequestError(
+					`Category ${categoryId} and group ${catGroupId} are not associated with the same restaurant.`
+				);
+		}
+
+		// Check that user is admin for restaurant
+		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
+		if (checkAdmin) {
+			const category = await Category.changeCatGroup(categoryId, catGroupId);
+			return res.status(200).json({ category });
+		}
+		throw new UnauthrorizedError(
+			`User ${userId} is not authorized to change the group for category ${categoryId}.`
+		);
 	} catch (error) {
 		return next(error);
 	}

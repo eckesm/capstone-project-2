@@ -41,16 +41,18 @@ CREATE TABLE categories (
   restaurant_id INTEGER
     REFERENCES restaurants(id) ON DELETE CASCADE,
   name VARCHAR(50) NOT NULL,
+  cat_group_id INTEGER
+    REFERENCES cat_groups(id),
   cogs_percent DECIMAL(4,4),
   notes TEXT
 );
 
-CREATE TABLE cat_groups_categories(
-  cat_group_id INTEGER
-    REFERENCES cat_groups(id) ON DELETE CASCADE,
-  category_id INTEGER
-    REFERENCES categories(id) ON DELETE CASCADE,
-  restaurant_id INTEGER
-    REFERENCES restaurants(id) ON DELETE CASCADE,
-    PRIMARY KEY (cat_group_id,category_id,restaurant_id)
-)
+-- CREATE TABLE cat_groups_categories(
+--   cat_group_id INTEGER
+--     REFERENCES cat_groups(id) ON DELETE CASCADE,
+--   category_id INTEGER
+--     REFERENCES categories(id) ON DELETE CASCADE,
+--   restaurant_id INTEGER
+--     REFERENCES restaurants(id) ON DELETE CASCADE,
+--     PRIMARY KEY (cat_group_id,category_id,restaurant_id)
+-- )

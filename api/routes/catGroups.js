@@ -7,7 +7,9 @@ const jsonschema = require('jsonschema');
 const { BadRequestError, ExpressError, UnauthrorizedError } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
 
+const Category = require('../models/category');
 const CatGroup = require('../models/catGroup');
+const Restaurant = require('../models/restaurant');
 const Restaurant_User = require('../models/restaurant_user');
 const catGroupNewSchema = require('../schemas/catGroupNew.json');
 const catGroupUpdateSchema = require('../schemas/catGroupUpdate.json');
@@ -49,6 +51,11 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 		// Check that user has access to the restaurant
 		const checkAccess = await Restaurant_User.checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
+			const restaurant = await Restaurant.get(restaurantId);
+			catGroup.restaurantName = restaurant.name;
+
+			catGroup.categories = await Category.getAllForGroup(catGroupId);
+
 			return res.status(200).json({ catGroup });
 		}
 		throw new UnauthrorizedError(`User ${userId} is not authorized to access category group ${catGroupId}.`);

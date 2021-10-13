@@ -53,6 +53,22 @@ class CatGroup {
 		return catGroup;
 	}
 
+	/** GET ALL FOR RESTAURANT
+	 * Returns array of all groups associated with a restaurant.
+	 * 
+	 * Accepts: restaurantId
+	 * Returns: [{id, restaurantId, name, notes},...]
+	 */
+	static async getAllRestaurantGroups(restaurantId) {
+		const result = await db.query(
+			`SELECT id, restaurant_id AS "restaurantId", name, notes
+				FROM cat_groups
+				WHERE restaurant_id = $1`,
+			[ restaurantId ]
+		);
+		return result.rows;
+	}
+
 	/** UPDATE
 	 * Replace category group's name, notes.
 	 * 

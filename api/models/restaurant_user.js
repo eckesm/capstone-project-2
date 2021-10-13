@@ -38,6 +38,59 @@ class Restaurant_User {
 		return restUser;
 	}
 
+	/** GET ALL USER FOR RESTAURANT
+	 * Returns array of all users and admins associated with a restaurant.
+	 * 
+	 * Accepts: restaurantId
+	 * Returns: [{restaurantId, userId, isAdmin},...]
+	 */
+	static async getAllRestaurantUsers(restaurantId) {
+		const result = await db.query(
+			`SELECT restaurant_id AS "restaurantId", user_id AS "userId", is_admin AS "isAdmin"
+			FROM restaurants_users
+			WHERE restaurant_id = $1`,
+			[ restaurantId ]
+		);
+		return result.rows;
+	}
+
+	/** UPDATE ASSOCIATION
+	 * Updates user/admin association between a user and a restaurant.
+	 * 
+	 * Accepts: restaurantId, userId, isAdmin
+	 * Returns: [{ restaurantId, userId, isAdmin},...]
+	 */
+	static async update(restaurantId, userId, isAdmin) {
+		const result = await db.query(
+			`UPDATE restaurants_users
+			SET is_admin = $1
+			WHERE restaurant_id = $2 AND user_id = $3
+			RETURNING restaurant_id AS "restaurantId", user_id AS "userId", is_admin AS "isAdmin"`,
+			[ isAdmin, restaurantId, userId ]
+		);
+		return result.rows[0];
+	}
+
+	/** REMOVE
+	 * Deletes a restaurant and user association from the database.
+     * 
+	 * Accepts: restaurantId, userId
+     * Returns: (nothing)
+     * 
+	 * Throws NotFoundError if association does not exist.
+     */
+	 static async remove(restaurantId, userId) {
+		const result = await db.query(
+			`DELETE FROM restaurants_users
+				WHERE restaurant_id = $1 AND user_id = $2
+				RETURNING restaurant_id, user_id`,
+			[ restaurantId, userId ]
+		);
+		const restUser = result.rows[0];
+		if (!restUser)
+			throw new NotFoundError(`There is no association between user ${userId} and restaurant ${restaurantId}.`);
+	}
+
 	/** CHECK IF ACCESS
 	 * Checks if a given user is a user or admin of a given restaurant.
 	 * 

@@ -32,12 +32,13 @@ INSERT INTO cat_groups(restaurant_id,name,notes)
 VALUES  (1,'Beverages','Only alcoholic beverages.'),
         (1,'Food & Non-Alcoholic Beverages','');
 
-INSERT INTO categories(restaurant_id,name,cogs_percent,notes)
-VALUES  (1,'Wine',0.30,''),
-        (1,'Beer',0.10,''),
-        (1,'Liquor',0.20,'');
+INSERT INTO categories(restaurant_id,cat_group_id,name,cogs_percent,notes)
+VALUES  (1,1,'Wine',0.30,''),
+        (1,1,'Beer',0.10,''),
+        (1,1,'Liquor',0.20,''),
+        (1,null,'Retail',0.50,'');
 
-INSERT INTO cat_groups_categories(cat_group_id,category_id,restaurant_id)
-VALUES  (1,1,1),
-        (1,2,1),
-        (1,3,1);
+-- INSERT INTO cat_groups_categories(cat_group_id,category_id,restaurant_id)
+-- VALUES  (1,1,1),
+--         (1,2,1),
+--         (1,3,1);
