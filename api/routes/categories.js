@@ -16,8 +16,8 @@ const categoryUpdateSchema = require('../schemas/categoryUpdate.json');
 
 /** POST /
  * Adds a category to the database.
- * Accepts JSON: {restaurantId, name, cogsPercent, notes}
- * Returns JSON: {category: {id, restaurantId, name, cogsPercent, notes}}
+ * Accepts JSON: {restaurantId, name, catGroupId, cogsPercent, notes}
+ * Returns JSON: {category: {id, restaurantId, name, catGroupId, cogsPercent, notes}}
  * Authorization: ensure logged in.
  */
 router.post('/', ensureLoggedIn, async function(req, res, next) {
@@ -27,8 +27,19 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
 			const errs = validator.errors.map(e => e.stack);
 			throw new BadRequestError(errs);
 		}
-		const category = await Category.register(req.body);
-		return res.status(201).json({ category });
+
+		const userId = res.locals.user.id;
+		const { restaurantId } = req.body;
+
+		// Check that user is admin for restaurant
+		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
+		if (checkAdmin) {
+			const category = await Category.register(req.body);
+			return res.status(201).json({ category });
+		}
+		throw new UnauthrorizedError(
+			`User ${userId} is not authorized to add a category to restaurant ${restaurantId}.`
+		);
 	} catch (error) {
 		return next(error);
 	}
@@ -36,7 +47,7 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
 
 /** GET /[id]
  * Gets category informaion for a single category.
- * Returns JSON: {category: {id, restaurantId, name, cogsPercent, notes}}
+ * Returns JSON: {category: {id, restaurantId, name, catGroupId, cogsPercent, notes}}
  * Authorization: ensure logged in.
  */
 router.get('/:id', ensureLoggedIn, async function(req, res, next) {
@@ -107,7 +118,7 @@ router.patch('/:categoryId/group/:catGroupId', ensureLoggedIn, async function(re
 /** PUT /[id]
  * Updates information for a category.
  * Accepts JSON: {name, cogsPercent, notes}
- * Returns JSON: {category: {id, name, cogsPercent, notes}}
+ * Returns JSON: {category: {id, name, catGroupId, cogsPercent, notes}}
  * Authorization: ensure logged in.
  */
 router.put('/:id', ensureLoggedIn, async function(req, res, next) {

@@ -10,7 +10,7 @@
 			"notes": "All alcoholic wines; not cooking wine."
 		}
 	],
-	"required": [ "name", "cogsPercent", "notes" ],
+	"required": [ "name", "cogsPercent" ],
 	"title": "categoryUpdate: schema for updating a category.",
 	"type": "object",
 	"properties": {

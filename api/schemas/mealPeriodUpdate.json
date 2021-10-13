@@ -1,0 +1,43 @@
+{
+    "$id": "http://example.com/example.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "default": {},
+    "description": "The mealPeriodUpdate schema comprises the entire JSON document.",
+    "examples": [
+        {
+            "restaurantId": 1,
+            "name": "Happy Hour",
+            "notes": "Drink service only before full dinner service."
+        }
+    ],
+    "required": [
+        "name"
+    ],
+    "title": "mealPeriodUpdate: schema for updating a meal period.",
+    "type": "object",
+    "properties": {
+        "name": {
+            "$id": "#/properties/name",
+            "default": "",
+            "description": "An explanation about the purpose of this instance.",
+            "examples": [
+                "Happy Hour"
+            ],
+            "title": "The name schema",
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+        },
+        "notes": {
+            "$id": "#/properties/notes",
+            "type": "string",
+            "title": "The notes schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "Drink service only before full dinner service."
+            ]
+        }
+    },
+    "additionalProperties": true
+}

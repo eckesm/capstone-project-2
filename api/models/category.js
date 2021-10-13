@@ -5,7 +5,7 @@ const { BadRequestError, NotFoundError } = require('../expressError');
 
 class Category {
 	/** REGISTER
-     * Adds category group to the database.
+     * Adds a category to the database.
      * 
      * Accepts: {restaurantId, name, cogsPercent, notes}
      * Returns: {id, restaurantId, name, cogsPercent, notes}
@@ -37,7 +37,7 @@ class Category {
 	 * Get a single category by ID.
 	 * 
 	 * Accepts: id
-	 * Returns: {id, restaurantId, name, cogsPercent, notes}
+	 * Returns: {id, restaurantId, name, catGroupId, cogsPercent, notes}
 	 * 
 	 * Throws NotFoundError if category does not exist.
 	 */
@@ -57,7 +57,7 @@ class Category {
 	 * Get all categories for a single group.
 	 * 
 	 * Accepts: catGroupId
-	 * Returns: [{id, restaurantId, name, cogsPercent, notes},...]
+	 * Returns: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]
 	 */
 	static async getAllForGroup(catGroupId) {
 		const result = await db.query(
@@ -73,7 +73,7 @@ class Category {
 	 * Returns array of all categories associated with a restaurant.
 	 * 
 	 * Accepts: restaurantId
-	 * Returns: [{id, restaurantId, name, cogsPercent, notes},...]
+	 * Returns: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]
 	 */
 	static async getAllRestaurantCategories(restaurantId) {
 		const result = await db.query(

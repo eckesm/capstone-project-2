@@ -10,9 +10,9 @@ const { ensureLoggedIn } = require('../middleware/auth');
 
 const Restaurant = require('../models/restaurant');
 const Restaurant_User = require('../models/restaurant_user');
-const User = require('../models/user');
 const Category = require('../models/category');
 const CatGroup = require('../models/catGroup');
+const MealPeriod = require('../models/mealPeriod');
 const restaurantNewSchema = require('../schemas/restaurantNew.json');
 const restaurantUpdateSchema = require('../schemas/restaurantUpdate.json');
 
@@ -52,8 +52,8 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 		if (checkAccess) {
 			const restaurant = await Restaurant.get(restaurantId);
 			restaurant.categories = await Category.getAllRestaurantCategories(restaurantId);
-
 			restaurant.catGroups = await CatGroup.getAllRestaurantGroups(restaurantId);
+			restaurant.mealPeriods = await MealPeriod.getAllRestaurantMealPeriods(restaurantId);
 
 			return res.status(200).json({ restaurant });
 		}

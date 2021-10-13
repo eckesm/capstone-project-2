@@ -11,7 +11,7 @@
 			"notes": "All alcoholic wines; not cooking wine."
 		}
 	],
-	"required": [ "restaurantId", "name", "cogsPercent", "notes" ],
+	"required": [ "restaurantId", "name", "cogsPercent" ],
 	"title": "categoryNew: schema for creating a new category.",
 	"type": "object",
 	"properties": {

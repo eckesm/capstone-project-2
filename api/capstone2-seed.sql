@@ -38,7 +38,10 @@ VALUES  (1,1,'Wine',0.30,''),
         (1,1,'Liquor',0.20,''),
         (1,null,'Retail',0.50,'');
 
--- INSERT INTO cat_groups_categories(cat_group_id,category_id,restaurant_id)
--- VALUES  (1,1,1),
---         (1,2,1),
---         (1,3,1);
+INSERT INTO meal_periods(restaurant_id,name,notes)
+VALUES  (1,'Brunch','Brunch service.'),
+        (1,'Lunch','Lunch service.'),
+        (1,'Dinner','Dinner service.');
+
+INSERT INTO meal_periods_categories(restaurant_id,category_id,meal_period_id,sales_percent_of_period,notes)
+VALUES  (1,1,3,0.20,'Dinner wine sales.');

@@ -47,12 +47,23 @@ CREATE TABLE categories (
   notes TEXT
 );
 
--- CREATE TABLE cat_groups_categories(
---   cat_group_id INTEGER
---     REFERENCES cat_groups(id) ON DELETE CASCADE,
---   category_id INTEGER
---     REFERENCES categories(id) ON DELETE CASCADE,
---   restaurant_id INTEGER
---     REFERENCES restaurants(id) ON DELETE CASCADE,
---     PRIMARY KEY (cat_group_id,category_id,restaurant_id)
--- )
+CREATE TABLE meal_periods (
+  id SERIAL PRIMARY KEY,
+  restaurant_id INTEGER
+    REFERENCES restaurants(id) ON DELETE CASCADE,
+  name VARCHAR(50) NOT NULL,
+  notes TEXT
+);
+
+CREATE TABLE meal_periods_categories (
+  id SERIAL UNIQUE,
+  restaurant_id INTEGER
+    REFERENCES restaurants(id) ON DELETE CASCADE,
+  category_id INTEGER
+    REFERENCES categories(id) ON DELETE CASCADE,
+  meal_period_id INTEGER
+    REFERENCES meal_periods(id) ON DELETE CASCADE,
+  sales_percent_of_period DECIMAL(4,4),
+  notes TEXT,
+  PRIMARY KEY (restaurant_id, category_id, meal_period_id)
+);
