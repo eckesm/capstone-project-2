@@ -20,6 +20,7 @@ CREATE TABLE restaurants (
 );
 
 CREATE TABLE restaurants_users (
+  id SERIAL UNIQUE,
   restaurant_id INTEGER
     REFERENCES restaurants(id) ON DELETE CASCADE,
   user_id INTEGER
@@ -66,4 +67,35 @@ CREATE TABLE meal_periods_categories (
   sales_percent_of_period DECIMAL(4,4),
   notes TEXT,
   PRIMARY KEY (restaurant_id, category_id, meal_period_id)
+);
+
+CREATE TABLE sales (
+  id SERIAL UNIQUE,
+  restaurant_id INTEGER
+    REFERENCES restaurants(id) ON DELETE CASCADE,
+  meal_period_category_id INTEGER
+    REFERENCES meal_periods_categories(id) ON DELETE CASCADE,
+  date DATE,
+  expected_sales DECIMAL(10,2),
+  actual_sales DECIMAL(10,2),
+  notes TEXT,
+  PRIMARY KEY (restaurant_id, meal_period_category_id,date)
+);
+
+CREATE TABLE days_of_week(
+  id INTEGER PRIMARY KEY,
+  name VARCHAR(10) NOT NULL
+);
+
+CREATE TABLE default_sales (
+  id SERIAL UNIQUE,
+  restaurant_id INTEGER
+    REFERENCES restaurants(id) ON DELETE CASCADE,
+  meal_period_id INTEGER
+    REFERENCES meal_periods(id) ON DELETE CASCADE,
+  day_id INTEGER
+    REFERENCES days_of_week(id),
+  total DECIMAL(10,2),
+  notes TEXT,
+  PRIMARY KEY (restaurant_id, meal_period_id,day_id)
 );

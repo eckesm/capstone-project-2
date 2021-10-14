@@ -4,11 +4,11 @@ const express = require('express');
 const router = new express.Router();
 const jsonschema = require('jsonschema');
 
-const { UnauthrorizedError, BadRequestError } = require('../expressError');
+const {  BadRequestError } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
+const { checkUserIsRestAccess, checkUserIsRestAdmin } = require('../helpers/checkAccess');
 
 const Restaurant = require('../models/restaurant');
-const Restaurant_User = require('../models/restaurant_user');
 const MealPeriod = require('../models/mealPeriod');
 const MealPeriod_Category = require('../models/mealPeriod_category');
 
@@ -38,14 +38,11 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
 		const { restaurantId } = req.body;
 
 		// Check that user is admin for restaurant
-		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			const mealPeriod = await MealPeriod.register(req.body);
 			return res.status(201).json({ mealPeriod });
 		}
-		throw new UnauthrorizedError(
-			`User ${userId} is not authorized to add a meal period to restaurant ${restaurantId}.`
-		);
 	} catch (error) {
 		return next(error);
 	}
@@ -68,14 +65,13 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 		const restaurantId = mealPeriod.restaurantId;
 
 		// Check that user has access to the restaurant
-		const checkAccess = await Restaurant_User.checkUserIsRestAccess(restaurantId, userId);
+		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
 			const restaurant = await Restaurant.get(restaurantId);
 			mealPeriod.restaurantName = restaurant.name;
 
 			return res.status(200).json({ mealPeriod });
 		}
-		throw new UnauthrorizedError(`User ${userId} is not authorized to access meal period ${mealPeriodId}.`);
 	} catch (error) {
 		return next(error);
 	}
@@ -104,12 +100,11 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 		const restaurantId = checkMealPeriod.restaurantId;
 
 		// Check that user is admin for restaurant
-		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			const mealPeriod = await MealPeriod.update(mealPeriodId, req.body);
 			return res.status(200).json({ mealPeriod });
 		}
-		throw new UnauthrorizedError(`User ${userId} is not authorized to update meal period ${mealPeriodId}.`);
 	} catch (error) {
 		return next(error);
 	}
@@ -132,12 +127,11 @@ router.delete('/:id', ensureLoggedIn, async function(req, res, next) {
 		const restaurantId = checkMealPeriod.restaurantId;
 
 		// Check that user is admin for restaurant
-		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			await MealPeriod.remove(mealPeriodId);
 			return res.status(200).json({ deleted: mealPeriodId });
 		}
-		throw new UnauthrorizedError(`User ${userId} is not authorized to delete meal period ${mealPeriodId}.`);
 	} catch (error) {
 		return next(error);
 	}
@@ -167,14 +161,11 @@ router.post('/:mealPeriodId/categories/:categoryId', ensureLoggedIn, async funct
 		const restaurantId = checkMealPeriod.restaurantId;
 
 		// Check that user is admin for restaurant
-		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			const mealPeriodCat = await MealPeriod_Category.register(restaurantId, mealPeriodId, categoryId, req.body);
 			return res.status(201).json({ mealPeriodCat });
 		}
-		throw new UnauthrorizedError(
-			`User ${userId} is not authorized to add categories to meal periods for restaurant ${restaurantId}.`
-		);
 	} catch (error) {
 		return next(error);
 	}
@@ -197,16 +188,13 @@ router.get('/:mealPeriodId/categories/:categoryId', ensureLoggedIn, async functi
 		const restaurantId = mealPeriodCat.restaurantId;
 
 		// Check that user has access to the restaurant
-		const checkAccess = await Restaurant_User.checkUserIsRestAccess(restaurantId, userId);
+		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
 			// const restaurant = await Restaurant.get(restaurantId);
 			// mealPeriod.restaurantName = restaurant.name;
 
 			return res.status(200).json({ mealPeriodCat });
 		}
-		throw new UnauthrorizedError(
-			`User ${userId} is not authorized to access meal period category association ${mealPeriodCat.id}.`
-		);
 	} catch (error) {
 		return next(error);
 	}
@@ -236,14 +224,11 @@ router.put('/:mealPeriodId/categories/:categoryId', ensureLoggedIn, async functi
 		const restaurantId = checkMealPeriodCat.restaurantId;
 
 		// Check that user is admin for restaurant
-		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			const mealPeriodCat = await MealPeriod_Category.update(categoryId, mealPeriodId, req.body);
 			return res.status(201).json({ mealPeriodCat });
 		}
-		throw new UnauthrorizedError(
-			`User ${userId} is not authorized to update category and meal period associations for restaurant ${restaurantId}.`
-		);
 	} catch (error) {
 		return next(error);
 	}
@@ -267,14 +252,11 @@ router.delete('/:mealPeriodId/categories/:categoryId', ensureLoggedIn, async fun
 		const restaurantId = checkMealPeriodCat.restaurantId;
 
 		// Check that user is admin for restaurant
-		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			await MealPeriod_Category.remove(categoryId, mealPeriodId);
 			return res.status(201).json({ deleted: { mealPeriodId, categoryId } });
 		}
-		throw new UnauthrorizedError(
-			`User ${userId} is not authorized to delete users from restaurant ${restaurantId}.`
-		);
 	} catch (error) {
 		return next(error);
 	}

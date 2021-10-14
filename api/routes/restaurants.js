@@ -4,8 +4,9 @@ const express = require('express');
 const router = new express.Router();
 const jsonschema = require('jsonschema');
 
-const { BadRequestError, UnauthrorizedError } = require('../expressError');
+const { BadRequestError } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
+const { checkUserIsRestAccess, checkUserIsRestAdmin } = require('../helpers/checkAccess');
 
 const Restaurant = require('../models/restaurant');
 const Restaurant_User = require('../models/restaurant_user');
@@ -54,7 +55,7 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 		const userId = res.locals.user.id;
 
 		// Check that user is admin for restaurant
-		const checkAccess = await Restaurant_User.checkUserIsRestAccess(restaurantId, userId);
+		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
 			const restaurant = await Restaurant.get(restaurantId);
 			restaurant.categories = await Category.getAllRestaurantCategories(restaurantId);
@@ -64,7 +65,6 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 
 			return res.status(200).json({ restaurant });
 		}
-		throw new UnauthrorizedError(`User ${userId} is not authorized to access restaurant ${restaurantId}.`);
 	} catch (error) {
 		return next(error);
 	}
@@ -90,12 +90,11 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 		const userId = res.locals.user.id;
 
 		// Check that user is admin for restaurant
-		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			const restaurant = await Restaurant.update(restaurantId, req.body);
 			return res.status(200).json({ restaurant });
 		}
-		throw new UnauthrorizedError(`User ${userId} is not authorized to update restaurant ${restaurantId}.`);
 	} catch (error) {
 		return next(error);
 	}
@@ -115,12 +114,11 @@ router.delete('/:id', ensureLoggedIn, async function(req, res, next) {
 		const userId = res.locals.user.id;
 
 		// Check that user is admin for restaurant
-		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			await Restaurant.remove(restaurantId);
 			return res.status(200).json({ deleted: restaurantId });
 		}
-		throw new UnauthrorizedError(`User ${userId} is not authorized to delete restaurant ${restaurantId}.`);
 	} catch (error) {
 		return next(error);
 	}
@@ -141,12 +139,11 @@ router.post('/:restaurantId/users/:newUserId', ensureLoggedIn, async function(re
 		const { restaurantId, newUserId } = req.params;
 
 		// Check that user is admin for restaurant
-		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			const newRestUser = await Restaurant_User.register(restaurantId, newUserId, isAdmin);
 			return res.status(201).json({ added: newRestUser });
 		}
-		throw new UnauthrorizedError(`User ${userId} is not authorized to add users to restaurant ${restaurantId}.`);
 	} catch (error) {
 		return next(error);
 	}
@@ -167,14 +164,11 @@ router.put('/:restaurantId/users/:updateUserId', ensureLoggedIn, async function(
 		const { restaurantId, updateUserId } = req.params;
 
 		// Check that user is admin for restaurant
-		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			const restUser = await Restaurant_User.update(restaurantId, updateUserId, isAdmin);
 			return res.status(201).json({ restUser: restUser });
 		}
-		throw new UnauthrorizedError(
-			`User ${userId} is not authorized to update users for restaurant ${restaurantId}.`
-		);
 	} catch (error) {
 		return next(error);
 	}
@@ -194,14 +188,11 @@ router.delete('/:restaurantId/users/:deleteUserId', ensureLoggedIn, async functi
 		const { restaurantId, deleteUserId } = req.params;
 
 		// Check that user is admin for restaurant
-		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			const restUser = await Restaurant_User.remove(restaurantId, deleteUserId);
 			return res.status(201).json({ deleted: { restaurantId, userId: deleteUserId } });
 		}
-		throw new UnauthrorizedError(
-			`User ${userId} is not authorized to delete users from restaurant ${restaurantId}.`
-		);
 	} catch (error) {
 		return next(error);
 	}

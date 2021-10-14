@@ -19,7 +19,7 @@ class Restaurant_User {
 		await checkRestaurantExists(restaurantId);
 
 		const duplicateCheck = await db.query(
-			`SELECT restaurant_id, user_id, is_admin
+			`SELECT id, restaurant_id, user_id, is_admin
 		    FROM restaurants_users
 		    WHERE restaurant_id = $1 AND user_id = $2`,
 			[ restaurantId, userId ]
@@ -46,7 +46,7 @@ class Restaurant_User {
 	 */
 	static async lookup(restaurantId, userId) {
 		const result = await db.query(
-			`SELECT restaurant_id AS "restaurantId", user_id AS "userId", is_admin AS "isAdmin"
+			`SELECT id, restaurant_id AS "restaurantId", user_id AS "userId", is_admin AS "isAdmin"
 			FROM restaurants_users
 			WHERE restaurant_id = $1 ANE user_id = $2`,
 			[ restaurantId, userId ]
@@ -62,7 +62,7 @@ class Restaurant_User {
 	 */
 	static async getAllRestaurantUsers(id) {
 		const result = await db.query(
-			`SELECT restaurant_id AS "restaurantId", user_id AS "userId", is_admin AS "isAdmin"
+			`SELECT id, restaurant_id AS "restaurantId", user_id AS "userId", is_admin AS "isAdmin"
 			FROM restaurants_users
 			WHERE restaurant_id = $1`,
 			[ id ]
@@ -78,7 +78,7 @@ class Restaurant_User {
 	 */
 	static async getAllUserRestaurants(id) {
 		const result = await db.query(
-			`SELECT restaurant_id AS "restaurantId", user_id AS "userId", is_admin AS "isAdmin"
+			`SELECT id, restaurant_id AS "restaurantId", user_id AS "userId", is_admin AS "isAdmin"
 				FROM restaurants_users
 				WHERE user_id = $1`,
 			[ id ]
@@ -131,20 +131,20 @@ class Restaurant_User {
 	 * 
 	 * Throws NotFoundError if restaurant or user does not exist.
 	 */
-	static async checkUserIsRestAccess(restaurantId, userId) {
-		await checkUserExists(userId);
-		await checkRestaurantExists(restaurantId);
+	// static async checkUserIsRestAccess(restaurantId, userId) {
+	// 	await checkUserExists(userId);
+	// 	await checkRestaurantExists(restaurantId);
 
-		const result = await db.query(
-			`SELECT restaurant_id, user_id
-			FROM restaurants_users
-			WHERE restaurant_id = $1 AND user_id = $2`,
-			[ restaurantId, userId ]
-		);
-		const restUser = result.rows[0];
-		if (restUser) return true;
-		return false;
-	}
+	// 	const result = await db.query(
+	// 		`SELECT id, restaurant_id, user_id
+	// 		FROM restaurants_users
+	// 		WHERE restaurant_id = $1 AND user_id = $2`,
+	// 		[ restaurantId, userId ]
+	// 	);
+	// 	const restUser = result.rows[0];
+	// 	if (restUser) return true;
+	// 	return false;
+	// }
 
 	/** CHECK IF ADMIN
 	 * Checks if a given user is an admin of a given restaurant.
@@ -154,20 +154,20 @@ class Restaurant_User {
 	 * 
 	 * Throws NotFoundError if restaurant or user does not exist.
 	 */
-	static async checkUserIsRestAdmin(restaurantId, userId) {
-		await checkUserExists(userId);
-		await checkRestaurantExists(restaurantId);
+	// static async checkUserIsRestAdmin(restaurantId, userId) {
+	// 	await checkUserExists(userId);
+	// 	await checkRestaurantExists(restaurantId);
 
-		const result = await db.query(
-			`SELECT restaurant_id, user_id, is_admin
-			FROM restaurants_users
-			WHERE restaurant_id = $1 AND user_id = $2`,
-			[ restaurantId, userId ]
-		);
-		const restUser = result.rows[0];
-		if (restUser && restUser.is_admin === true) return true;
-		return false;
-	}
+	// 	const result = await db.query(
+	// 		`SELECT id, restaurant_id, user_id, is_admin
+	// 		FROM restaurants_users
+	// 		WHERE restaurant_id = $1 AND user_id = $2`,
+	// 		[ restaurantId, userId ]
+	// 	);
+	// 	const restUser = result.rows[0];
+	// 	if (restUser && restUser.is_admin === true) return true;
+	// 	return false;
+	// }
 }
 
 module.exports = Restaurant_User;

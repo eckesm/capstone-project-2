@@ -4,13 +4,13 @@ const express = require('express');
 const router = new express.Router();
 const jsonschema = require('jsonschema');
 
-const { BadRequestError, UnauthrorizedError } = require('../expressError');
+const { BadRequestError, } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
+const { checkUserIsRestAccess, checkUserIsRestAdmin } = require('../helpers/checkAccess');
 
 const Category = require('../models/category');
 const CatGroup = require('../models/catGroup');
 const Restaurant = require('../models/restaurant');
-const Restaurant_User = require('../models/restaurant_user');
 
 const catGroupNewSchema = require('../schemas/catGroupNew.json');
 const catGroupUpdateSchema = require('../schemas/catGroupUpdate.json');
@@ -26,14 +26,21 @@ const catGroupUpdateSchema = require('../schemas/catGroupUpdate.json');
  */
 router.post('/', ensureLoggedIn, async function(req, res, next) {
 	try {
-		// const userId = res.locals.user.id;
 		const validator = jsonschema.validate(req.body, catGroupNewSchema);
 		if (!validator.valid) {
 			const errs = validator.errors.map(e => e.stack);
 			throw new BadRequestError(errs);
 		}
-		const catGroup = await CatGroup.register(req.body);
-		return res.status(201).json({ catGroup });
+
+		const userId = res.locals.user.id;
+		const { restaurantId } = req.body;
+
+		// Check that user is admin for restaurant
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
+		if (checkAdmin) {
+			const catGroup = await CatGroup.register(req.body);
+			return res.status(201).json({ catGroup });
+		}
 	} catch (error) {
 		return next(error);
 	}
@@ -56,7 +63,7 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 		const restaurantId = catGroup.restaurantId;
 
 		// Check that user has access to the restaurant
-		const checkAccess = await Restaurant_User.checkUserIsRestAccess(restaurantId, userId);
+		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
 			const restaurant = await Restaurant.get(restaurantId);
 			catGroup.restaurantName = restaurant.name;
@@ -65,7 +72,6 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 
 			return res.status(200).json({ catGroup });
 		}
-		throw new UnauthrorizedError(`User ${userId} is not authorized to access category group ${catGroupId}.`);
 	} catch (error) {
 		return next(error);
 	}
@@ -94,12 +100,11 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 		const restaurantId = checkCatGroup.restaurantId;
 
 		// Check that user is admin for restaurant
-		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			const catGroup = await CatGroup.update(catGroupId, req.body);
 			return res.status(200).json({ catGroup });
 		}
-		throw new UnauthrorizedError(`User ${userId} is not authorized to update category group ${catGroupId}.`);
 	} catch (error) {
 		return next(error);
 	}
@@ -122,12 +127,11 @@ router.delete('/:id', ensureLoggedIn, async function(req, res, next) {
 		const restaurantId = checkCatGroup.restaurantId;
 
 		// Check that user is admin for restaurant
-		const checkAdmin = await Restaurant_User.checkUserIsRestAdmin(restaurantId, userId);
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
 			await CatGroup.remove(catGroupId);
 			return res.status(200).json({ deleted: catGroupId });
 		}
-		throw new UnauthrorizedError(`User ${userId} is not authorized to delete category group ${catGroupId}.`);
 	} catch (error) {
 		return next(error);
 	}

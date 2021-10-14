@@ -16,8 +16,6 @@ class MealPeriod_Category {
 	 * Throws BadRequestError if association is not possible or if duplicate.
      */
 	static async register(restaurantId, mealPeriodId, categoryId, { salesPercentOfPeriod, notes }) {
-		// const restRes = await checkRestaurantExists(restaurantId);
-		// if (!restRes) throw new NotFoundError(`There is no restaurant with ID ${restaurantId}.`);
 		const category = await Category.get(categoryId);
 		const mealPeriod = await MealPeriod.get(mealPeriodId);
 

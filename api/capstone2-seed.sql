@@ -44,4 +44,21 @@ VALUES  (1,'Brunch','Brunch service.'),
         (1,'Dinner','Dinner service.');
 
 INSERT INTO meal_periods_categories(restaurant_id,category_id,meal_period_id,sales_percent_of_period,notes)
-VALUES  (1,1,3,0.20,'Dinner wine sales.');
+VALUES  (1,1,3,0.20,'Dinner wine.'),
+        (1,2,3,0.20,'Dinner beer.'),
+        (1,3,3,0.20,'Dinner liquor.');
+
+INSERT INTO sales(restaurant_id,meal_period_category_id,date,expected_sales,actual_sales,notes)
+VALUES  (1,1,'2021-10-14',1000.00,1250.00,'25% increase in dinner wine sales on 10/14/2021');
+
+INSERT INTO days_of_week(id,name)
+VALUES  (1,'Monday'),
+        (2,'Tuesday'),
+        (3,'Wednesday'),
+        (4,'Thursday'),
+        (5,'Friday'),
+        (6,'Saturday'),
+        (7,'Sunday');
+
+INSERT INTO default_sales(restaurant_id,meal_period_id,day_id,total,notes)
+VALUES  (1,3,6,12500.00,'Expected Saturday dinner sales');

@@ -1,0 +1,47 @@
+{
+	"$id": "http://example.com/example.json",
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"default": {},
+	"description": "The root saleUpdate comprises the entire JSON document.",
+	"examples": [
+		{
+			"expectedSales": 1000,
+			"actualSales": 1037.25,
+			"notes": "Dinner liquor sales on 10/14/2021"
+		}
+	],
+	"required": [],
+	"title": "saleUpdate: schema for updating expected and actual sales.",
+	"type": "object",
+	"properties": {
+		"expectedSales": {
+			"$id": "#/properties/expectedSales",
+			"type": "integer",
+			"title": "The expectedSales schema",
+			"maximum": 99999999,
+			"minimum": -99999999,
+			"description": "An explanation about the purpose of this instance.",
+			"default": 0,
+			"examples": [ 1000 ]
+		},
+		"actualSales": {
+			"$id": "#/properties/actualSales",
+			"type": "number",
+			"title": "The actualSales schema",
+			"maximum": 99999999,
+			"minimum": -99999999,
+			"description": "An explanation about the purpose of this instance.",
+			"default": 0.0,
+			"examples": [ 1037.25 ]
+		},
+		"notes": {
+			"$id": "#/properties/notes",
+			"type": "string",
+			"title": "The notes schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": "",
+			"examples": [ "Dinner liquor sales on 10/14/2021" ]
+		}
+	},
+	"additionalProperties": true
+}

@@ -2,6 +2,8 @@
 
 const db = require('../db');
 const { BadRequestError, NotFoundError } = require('../expressError');
+const { checkCatGroupExists } = require('../helpers/checkExist');
+const { checkCategoryAndGroup } = require('../helpers/checkSameRestaurant');
 
 class Category {
 	/** REGISTER
@@ -13,6 +15,7 @@ class Category {
      * Throws BadRequestError if name is a duplicate.
      */
 	static async register({ restaurantId, name, catGroupId, cogsPercent, notes }) {
+		await checkCatGroupExists(catGroupId);
 		const duplicateCheck = await db.query(
 			`SELECT name
             FROM categories
@@ -91,6 +94,7 @@ class Category {
 	 * Returns: {id, restaurantId, name, catGroupId, cogsPercent, notes}
 	 */
 	static async update(id, { name, catGroupId, cogsPercent, notes }) {
+		await checkCategoryAndGroup(id, catGroupId);
 		const result = await db.query(
 			`UPDATE categories
 			SET name = $1, cat_group_id = $2, cogs_percent = $3, notes = $4
@@ -108,6 +112,7 @@ class Category {
 	 * Returns: {id, restaurantId, name, catGroupId, cogsPercent, notes}
 	 */
 	static async changeCatGroup(id, catGroupId) {
+		await checkCategoryAndGroup(id, catGroupId);
 		let result;
 		if (catGroupId === null) {
 			result = await db.query(
