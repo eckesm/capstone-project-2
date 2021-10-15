@@ -1,12 +1,12 @@
 'use strict';
 
-const bcrypt = require('bcrypt');
-
 const db = require('../db');
-const { NotFoundError, BadRequestError, UnauthrorizedError } = require('../expressError');
-
+const bcrypt = require('bcrypt');
 const { BCRYPT_WORK_FACTOR } = require('../config');
+
+const { NotFoundError, BadRequestError, UnauthrorizedError } = require('../expressError');
 const Restaurant_User = require('./restaurant_user');
+const { checkUserExists } = require('../helpers/checkExist');
 
 class User {
 	/** AUTHENTICATE 
@@ -87,10 +87,6 @@ class User {
 		const user = result.rows[0];
 		if (!user) throw new NotFoundError(`There is no user with the ID ${id}.`);
 
-		// user.restaurants = userRestaurantsRes.rows.map(r => {
-		// 	return { restaurantId: r.restaurant_id, isAdmin: r.is_admin };
-		// });
-
 		user.restaurants = await Restaurant_User.getAllUserRestaurants(id);
 
 		return user;
@@ -105,6 +101,8 @@ class User {
      * Throws BadRequestError if emailAddress is a duplicate.
      */
 	static async update(id, { emailAddress, firstName, lastName }) {
+		await checkUserExists(id);
+
 		const duplicateCheck = await db.query(
 			`SELECT id, email_address
             FROM users
@@ -147,7 +145,7 @@ class User {
 			[ id ]
 		);
 		const user = result.rows[0];
-		if (!user) throw new NotFoundError(`There is no user with the ID ${id}.`);
+		if (!user) throw new NotFoundError(`There is no user with id ${id}.`);
 	}
 }
 

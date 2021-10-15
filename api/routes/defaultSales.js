@@ -4,22 +4,19 @@ const express = require('express');
 const router = new express.Router();
 const jsonschema = require('jsonschema');
 
-const { BadRequestError, UnauthrorizedError } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
 const { checkMealPeriodExists } = require('../helpers/checkExist');
-const { checkUserIsRestAccess, checkUserIsRestAdmin } = require('../helpers/checkAccess');
+const { checkUserIsRestAccess } = require('../helpers/checkAccess');
 
-const Restaurant_User = require('../models/restaurant_user');
-const Sale = require('../models/sale');
 const DefaultSale = require('../models/defaultSale');
 
-const saleNewSchema = require('../schemas/saleNew.json');
-const saleUpdateSchema = require('../schemas/saleUpdate.json');
+const defaultSaleNewSchema = require('../schemas/defaultSaleNew.json');
+const defaultSaleUpdateSchema = require('../schemas/defaultSaleUpdate.json');
 
 /** POST /
  * Adds a default sale entry to the database.
  * 
- * Accepts JSON: {restaurantId, mealPeriodId, dayId, total, note}
+ * Accepts JSON: {restaurantId, mealPeriodId, dayId, total, notes}
  * Returns JSON: {defaultSale: {id, restaurantId, mealPeriodId, dayId, total, note}}
  * 
  * Authorization: ensure logged in.
@@ -27,11 +24,11 @@ const saleUpdateSchema = require('../schemas/saleUpdate.json');
  */
 router.post('/', ensureLoggedIn, async function(req, res, next) {
 	try {
-		// const validator = jsonschema.validate(req.body, saleNewSchema);
-		// if (!validator.valid) {
-		// 	const errs = validator.errors.map(e => e.stack);
-		// 	throw new BadRequestError(errs);
-		// }
+		const validator = jsonschema.validate(req.body, defaultSaleNewSchema);
+		if (!validator.valid) {
+			const errs = validator.errors.map(e => e.stack);
+			throw new BadRequestError(errs);
+		}
 
 		const userId = res.locals.user.id;
 		const { restaurantId, mealPeriodId } = req.body;
@@ -75,6 +72,30 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 	}
 });
 
+/** GET ALL /restaurants/[:restaurantId]
+ * Gets array of all default sale entries for a restaurant.
+ 
+ * Returns JSON: {defaultSales: [{id, restaurantId, mealPeriodId, dayId, total, note},...]}
+
+ * Authorization: ensure logged in.
+ * Access: any restaurant user.
+ */
+router.get('/restaurants/:restaurantId', ensureLoggedIn, async function(req, res, next) {
+	try {
+		const userId = res.locals.user.id;
+		const { restaurantId } = req.params;
+
+		// Check that user has access to the restaurant
+		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
+		if (checkAccess) {
+			const defaultSales = await DefaultSale.getAllForRestaurant(restaurantId);
+			return res.status(200).json({ defaultSales });
+		}
+	} catch (error) {
+		return next(error);
+	}
+});
+
 /** PUT /[id]
  * Updates information for a category.
  * 
@@ -86,11 +107,11 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
  */
 router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
-		// const validator = jsonschema.validate(req.body, saleUpdateSchema);
-		// if (!validator.valid) {
-		// 	const errs = validator.errors.map(e => e.stack);
-		// 	throw new BadRequestError(errs);
-		// }
+		const validator = jsonschema.validate(req.body, defaultSaleUpdateSchema);
+		if (!validator.valid) {
+			const errs = validator.errors.map(e => e.stack);
+			throw new BadRequestError(errs);
+		}
 		const userId = res.locals.user.id;
 		const defaultSaleId = req.params.id;
 

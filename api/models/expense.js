@@ -1,9 +1,9 @@
 'use strict';
 
 const db = require('../db');
-const { BadRequestError, NotFoundError } = require('../expressError');
-const { checkRestaurantExists, checkInvoiceExists, checkCategoryExists } = require('../helpers/checkExist');
-const { checkInvoiceCategory, checkExpenseInvoiceCategory } = require('../helpers/checkSameRestaurant');
+const { NotFoundError } = require('../expressError');
+const { checkRestaurantExists } = require('../helpers/checkExist');
+const { checkExpenseInvoiceCategory } = require('../helpers/checkSameRestaurant');
 
 class Expense {
 	/** REGISTER
@@ -13,10 +13,7 @@ class Expense {
      * Returns: {id, restaurantId, categoryId, invoiceId, amount, notes}
      */
 	static async register({ restaurantId, categoryId, invoiceId, amount, notes }) {
-		// await checkRestaurantExists(restaurantId);
-		await checkInvoiceExists(invoiceId);
-		await checkCategoryExists(categoryId);
-
+		await checkRestaurantExists(restaurantId);
 		await checkInvoiceCategory(invoiceId, categoryId);
 
 		const result = await db.query(
@@ -48,45 +45,13 @@ class Expense {
 		return expense;
 	}
 
-	/** GET ALL FOR GROUP
-	 * Get all categories for a single group.
-	 * 
-	 * Accepts: catGroupId
-	 * Returns: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]
-	 */
-	// static async getAllForGroup(catGroupId) {
-	// 	const result = await db.query(
-	// 		`SELECT id, restaurant_id AS "restaurantId", name, cat_group_id AS "catGroupId", cogs_percent AS "cogsPercent", notes
-	// 		FROM categories
-	// 		WHERE cat_group_id = $1`,
-	// 		[ catGroupId ]
-	// 	);
-	// 	return result.rows;
-	// }
-
-	/** GET ALL FOR RESTAURANT
-	 * Returns array of all categories associated with a restaurant.
-	 * 
-	 * Accepts: restaurantId
-	 * Returns: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]
-	 */
-	// static async getAllForRestaurant(restaurantId) {
-	// 	const result = await db.query(
-	// 		`SELECT id, restaurant_id AS "restaurantId", name, cat_group_id AS "catGroupId", cogs_percent AS "cogsPercent", notes
-	// 		FROM categories
-	// 		WHERE restaurant_id = $1`,
-	// 		[ restaurantId ]
-	// 	);
-	// 	return result.rows;
-	// }
-
 	/** GET ALL FOR INVOICE
 	 * Returns array of all expenses associated with an invoice.
 	 * 
 	 * Accepts: invoiceId
 	 * Returns: [{id, restaurantId, categoryId, invoiceId, amount, notes},...]
 	 */
-	static async getAllInvoiceExpenses(invoiceId) {
+	static async getAllForInvoice(invoiceId) {
 		const result = await db.query(
 			`SELECT id, restaurant_id AS "restaurantId", category_id AS "categoryId", invoice_id AS "invoiceId", amount, notes, notes
 			FROM expenses
@@ -103,7 +68,8 @@ class Expense {
 	 * Returns: {id, restaurantId, categoryId, invoiceId, amount, notes}
 	 */
 	static async update(expenseId, invoiceId, { categoryId, amount, notes }) {
-		await checkInvoiceCategory(invoiceId, categoryId);
+		await checkExpenseInvoiceCategory(expenseId, invoiceId, categoryId);
+
 		const result = await db.query(
 			`UPDATE expenses
 			SET category_id = $1, amount = $2, notes = $3
@@ -130,7 +96,7 @@ class Expense {
 			[ id ]
 		);
 		const expense = result.rows[0];
-		if (!expense) throw new NotFoundError(`There is no expense with the id ${id}.`);
+		if (!expense) throw new NotFoundError(`There is no expense with id ${id}.`);
 	}
 }
 

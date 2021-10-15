@@ -80,7 +80,7 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 	}
 });
 
-/** GET ALL FOR CATGROUP /catgroups/[catGroupId]
+/** GET ALL /catgroups/[catGroupId]
  * Gets all categories for a group.
  
  * Returns JSON: {categories: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]}
@@ -107,7 +107,7 @@ router.get('/catgroups/:catGroupId', ensureLoggedIn, async function(req, res, ne
 	}
 });
 
-/** GET ALL FOR RESTAURANT /catgroups/[catGroupId]
+/** GET ALL /catgroups/[catGroupId]
  * Gets all categories for a restaurant.
  
  * Returns JSON: {categories: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]}

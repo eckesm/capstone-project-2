@@ -6,9 +6,8 @@ const jsonschema = require('jsonschema');
 
 const { BadRequestError } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
-const { checkUserIsRestAccess, checkUserIsRestAdmin } = require('../helpers/checkAccess');
+const { checkUserIsRestAccess } = require('../helpers/checkAccess');
 
-const Category = require('../models/category');
 const Restaurant = require('../models/restaurant');
 const Invoice = require('../models/invoice');
 const Expense = require('../models/expense');
@@ -94,7 +93,7 @@ router.get('/restaurants/:restaurantId', ensureLoggedIn, async function(req, res
 		// Check that user has access to the restaurant
 		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
-			const invoices = await Invoice.getAllRestaurantInvoices(restaurantId);
+			const invoices = await Invoice.getAllForRestaurant(restaurantId);
 			return res.status(200).json({ invoices });
 		}
 	} catch (error) {

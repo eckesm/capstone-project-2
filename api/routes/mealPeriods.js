@@ -4,7 +4,7 @@ const express = require('express');
 const router = new express.Router();
 const jsonschema = require('jsonschema');
 
-const {  BadRequestError } = require('../expressError');
+const { BadRequestError } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
 const { checkUserIsRestAccess, checkUserIsRestAdmin } = require('../helpers/checkAccess');
 
@@ -58,8 +58,8 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
  */
 router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
-		const mealPeriodId = req.params.id;
 		const userId = res.locals.user.id;
+		const mealPeriodId = req.params.id;
 
 		const mealPeriod = await MealPeriod.get(mealPeriodId);
 		const restaurantId = mealPeriod.restaurantId;
@@ -71,6 +71,30 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 			mealPeriod.restaurantName = restaurant.name;
 
 			return res.status(200).json({ mealPeriod });
+		}
+	} catch (error) {
+		return next(error);
+	}
+});
+
+/** GET ALL /restaurants/[id]
+ * Gets all meal periods for a restaurant.
+ * 
+ * Returns JSON: {mealPeriods: [{id, restaurantId, name, notes},...]}
+ * 
+ * Authorization: ensure logged in.
+ * Access: any restaurant user.
+ */
+router.get('/restaurants/:restaurantId', ensureLoggedIn, async function(req, res, next) {
+	try {
+		const userId = res.locals.user.id;
+		const { restaurantId } = req.params;
+
+		// Check that user has access to the restaurant
+		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
+		if (checkAccess) {
+			const mealPeriods = await MealPeriod.getAllForRestaurant(restaurantId);
+			return res.status(200).json({ mealPeriods });
 		}
 	} catch (error) {
 		return next(error);
@@ -93,11 +117,11 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 			const errs = validator.errors.map(e => e.stack);
 			throw new BadRequestError(errs);
 		}
-		const mealPeriodId = req.params.id;
 		const userId = res.locals.user.id;
+		const mealPeriodId = req.params.id;
 
-		const checkMealPeriod = await MealPeriod.get(mealPeriodId);
-		const restaurantId = checkMealPeriod.restaurantId;
+		const existingMealPeriod = await MealPeriod.get(mealPeriodId);
+		const restaurantId = existingMealPeriod.restaurantId;
 
 		// Check that user is admin for restaurant
 		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
@@ -123,8 +147,8 @@ router.delete('/:id', ensureLoggedIn, async function(req, res, next) {
 		const mealPeriodId = req.params.id;
 		const userId = res.locals.user.id;
 
-		const checkMealPeriod = await MealPeriod.get(mealPeriodId);
-		const restaurantId = checkMealPeriod.restaurantId;
+		const mealPeriod = await MealPeriod.get(mealPeriodId);
+		const restaurantId = mealPeriod.restaurantId;
 
 		// Check that user is admin for restaurant
 		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
@@ -157,8 +181,8 @@ router.post('/:mealPeriodId/categories/:categoryId', ensureLoggedIn, async funct
 		const userId = res.locals.user.id;
 		const { mealPeriodId, categoryId } = req.params;
 
-		const checkMealPeriod = await MealPeriod.get(mealPeriodId);
-		const restaurantId = checkMealPeriod.restaurantId;
+		const mealPeriod = await MealPeriod.get(mealPeriodId);
+		const restaurantId = mealPeriod.restaurantId;
 
 		// Check that user is admin for restaurant
 		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
@@ -181,8 +205,8 @@ router.post('/:mealPeriodId/categories/:categoryId', ensureLoggedIn, async funct
  */
 router.get('/:mealPeriodId/categories/:categoryId', ensureLoggedIn, async function(req, res, next) {
 	try {
-		const { mealPeriodId, categoryId } = req.params;
 		const userId = res.locals.user.id;
+		const { mealPeriodId, categoryId } = req.params;
 
 		const mealPeriodCat = await MealPeriod_Category.lookup(mealPeriodId, categoryId);
 		const restaurantId = mealPeriodCat.restaurantId;
@@ -220,8 +244,8 @@ router.put('/:mealPeriodId/categories/:categoryId', ensureLoggedIn, async functi
 		const userId = res.locals.user.id;
 		const { mealPeriodId, categoryId } = req.params;
 
-		const checkMealPeriodCat = await MealPeriod_Category.lookup(mealPeriodId, categoryId);
-		const restaurantId = checkMealPeriodCat.restaurantId;
+		const existingMealPeriodCat = await MealPeriod_Category.lookup(mealPeriodId, categoryId);
+		const restaurantId = existingMealPeriodCat.restaurantId;
 
 		// Check that user is admin for restaurant
 		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
@@ -248,8 +272,8 @@ router.delete('/:mealPeriodId/categories/:categoryId', ensureLoggedIn, async fun
 		const userId = res.locals.user.id;
 		const { mealPeriodId, categoryId } = req.params;
 
-		const checkMealPeriodCat = await MealPeriod_Category.lookup(mealPeriodId, categoryId);
-		const restaurantId = checkMealPeriodCat.restaurantId;
+		const mealPeriodCat = await MealPeriod_Category.lookup(mealPeriodId, categoryId);
+		const restaurantId = mealPeriodCat.restaurantId;
 
 		// Check that user is admin for restaurant
 		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);

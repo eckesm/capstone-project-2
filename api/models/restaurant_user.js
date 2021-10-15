@@ -122,52 +122,6 @@ class Restaurant_User {
 		if (!restUser)
 			throw new NotFoundError(`There is no association between user ${userId} and restaurant ${restaurantId}.`);
 	}
-
-	/** CHECK IF ACCESS
-	 * Checks if a given user is a user or admin of a given restaurant.
-	 * 
-	 * Accepts: restaurantId, userId
-	 * Returns: true / false
-	 * 
-	 * Throws NotFoundError if restaurant or user does not exist.
-	 */
-	// static async checkUserIsRestAccess(restaurantId, userId) {
-	// 	await checkUserExists(userId);
-	// 	await checkRestaurantExists(restaurantId);
-
-	// 	const result = await db.query(
-	// 		`SELECT id, restaurant_id, user_id
-	// 		FROM restaurants_users
-	// 		WHERE restaurant_id = $1 AND user_id = $2`,
-	// 		[ restaurantId, userId ]
-	// 	);
-	// 	const restUser = result.rows[0];
-	// 	if (restUser) return true;
-	// 	return false;
-	// }
-
-	/** CHECK IF ADMIN
-	 * Checks if a given user is an admin of a given restaurant.
-	 * 
-	 * Accepts: restaurantId, userId
-	 * Returns: true / false
-	 * 
-	 * Throws NotFoundError if restaurant or user does not exist.
-	 */
-	// static async checkUserIsRestAdmin(restaurantId, userId) {
-	// 	await checkUserExists(userId);
-	// 	await checkRestaurantExists(restaurantId);
-
-	// 	const result = await db.query(
-	// 		`SELECT id, restaurant_id, user_id, is_admin
-	// 		FROM restaurants_users
-	// 		WHERE restaurant_id = $1 AND user_id = $2`,
-	// 		[ restaurantId, userId ]
-	// 	);
-	// 	const restUser = result.rows[0];
-	// 	if (restUser && restUser.is_admin === true) return true;
-	// 	return false;
-	// }
 }
 
 module.exports = Restaurant_User;

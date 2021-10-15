@@ -7,7 +7,6 @@ const Restaurant_User = require('./restaurant_user');
 const { checkRestaurantExists, checkUserExists } = require('../helpers/checkExist');
 
 class Restaurant {
-
 	/** REGISTER
 	 * Adds restaurant to the database.
      * 
@@ -15,6 +14,8 @@ class Restaurant {
      * Returns: {id, ownerId, name, address, phone, email, website, notes}
      */
 	static async register(ownerId, { name, address, phone, email, website, notes }) {
+		await checkUserExists(ownerId);
+
 		const result = await db.query(
 			`INSERT INTO restaurants (owner_id, name, address, phone, email, website, notes)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -44,11 +45,11 @@ class Restaurant {
 		const restaurant = result.rows[0];
 		if (!restaurant) throw new NotFoundError(`There is no restaurant with the id ${id}.`);
 
-		const userRestaurantsRes=await Restaurant_User.getAllRestaurantUsers(id)
+		const userRestaurantsRes = await Restaurant_User.getAllRestaurantUsers(id);
 		// restaurant.users = userRestaurantsRes.map(u => {
 		// 	return { userId: u.userId, isAdmin: u.isAdmin };
 		// });
-		restaurant.users=userRestaurantsRes
+		restaurant.users = userRestaurantsRes;
 		return restaurant;
 	}
 
@@ -59,6 +60,8 @@ class Restaurant {
      * Returns: {id, ownerId, name, address, phone, email, website, notes}
      */
 	static async update(id, { name, address, phone, email, website, notes }) {
+		await checkRestaurantExists(id)
+
 		const result = await db.query(
 			`UPDATE restaurants
 			SET name = $1, address = $2, phone = $3, email = $4, website = $5, notes = $6
@@ -86,7 +89,7 @@ class Restaurant {
 			[ id ]
 		);
 		const restaurant = result.rows[0];
-		if (!restaurant) throw new NotFoundError(`There is no restaurant with the id ${id}.`);
+		if (!restaurant) throw new NotFoundError(`There is no restaurant with id ${id}.`);
 	}
 }
 

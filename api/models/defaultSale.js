@@ -2,6 +2,7 @@
 
 const db = require('../db');
 const { BadRequestError, NotFoundError } = require('../expressError');
+const { checkRestaurantExists, checkMealPeriodExists, checkDayOfWeekExists, checkDefaultSaleExists } = require('../helpers/checkExist');
 
 class DefaultSale {
 	/** REGISTER
@@ -13,6 +14,10 @@ class DefaultSale {
      * Throws BadRequestError if name is a duplicate.
      */
 	static async register({ restaurantId, mealPeriodId, dayId, total, notes }) {
+		await checkRestaurantExists(restaurantId);
+		await checkMealPeriodExists(mealPeriodId);
+		await checkDayOfWeekExists(dayId);
+
 		const duplicateCheck = await db.query(
 			`SELECT restaurant_id, meal_period_id, day_id
             FROM default_sales
@@ -74,37 +79,23 @@ class DefaultSale {
 		return defaultSale;
 	}
 
-	/** GET ALL FOR GROUP
-	 * Get all categories for a single group.
-	 * 
-	 * Accepts: catGroupId
-	 * Returns: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]
-	 */
-	// static async getAllForGroup(catGroupId) {
-	// 	const result = await db.query(
-	// 		`SELECT id, restaurant_id AS "restaurantId", name, cat_group_id AS "catGroupId", cogs_percent AS "cogsPercent", notes
-	// 		FROM categories
-	// 		WHERE cat_group_id = $1`,
-	// 		[ catGroupId ]
-	// 	);
-	// 	return result.rows;
-	// }
-
 	/** GET ALL FOR RESTAURANT
-	 * Returns array of all categories associated with a restaurant.
+	 * Returns array of all default sale entries associated with a restaurant.
 	 * 
 	 * Accepts: restaurantId
-	 * Returns: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]
+	 * Returns: [{id, restaurantId, mealPeriodId, dayId, total, notes},...]
 	 */
-	// static async getAllForRestaurant(restaurantId) {
-	// 	const result = await db.query(
-	// 		`SELECT id, restaurant_id AS "restaurantId", name, cat_group_id AS "catGroupId", cogs_percent AS "cogsPercent", notes
-	// 		FROM categories
-	// 		WHERE restaurant_id = $1`,
-	// 		[ restaurantId ]
-	// 	);
-	// 	return result.rows;
-	// }
+	static async getAllForRestaurant(restaurantId) {
+		await checkRestaurantExists(restaurantId);
+
+		const result = await db.query(
+			`SELECT id, restaurant_id AS "restaurantId", meal_period_id AS "mealPeriodId", day_id AS "dayId", total, notes
+			FROM default_sales
+			WHERE restaurant_id = $1`,
+			[ restaurantId ]
+		);
+		return result.rows;
+	}
 
 	/** UPDATE
 	 * Updates total and notes for a default sale entry.
@@ -113,6 +104,8 @@ class DefaultSale {
 	 * Returns: {id, restaurantId, mealPeriodId, dayId, total, notes}
 	 */
 	static async update(id, { total, notes }) {
+		await checkDefaultSaleExists(id)
+
 		const result = await db.query(
 			`UPDATE default_sales
 			SET total = $1, notes = $2
@@ -139,7 +132,7 @@ class DefaultSale {
 			[ id ]
 		);
 		const defaultSale = result.rows[0];
-		if (!defaultSale) throw new NotFoundError(`There is no default sale entry with the id ${id}.`);
+		if (!defaultSale) throw new NotFoundError(`There is no default sale entry with id ${id}.`);
 	}
 }
 

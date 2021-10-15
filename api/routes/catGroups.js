@@ -77,6 +77,30 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 	}
 });
 
+/** GET ALL /restaurants/[restaurantId]
+ * Gets group informaion for a single category group.
+ * 
+ * Returns JSON: {catGroups: [{id, restaurantId, name, notes},...]}
+ * 
+ * Authorization: ensure logged in.
+ * Access: all restaurant users.
+ */
+router.get('/restaurants/:restaurantId', ensureLoggedIn, async function(req, res, next) {
+	try {
+		const userId = res.locals.user.id;
+		const {restaurantId} = req.params
+
+		// Check that user has access to the restaurant
+		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
+		if (checkAccess) {
+			const catGroups = await CatGroup.getAllForRestaurant(restaurantId)
+			return res.status(200).json({ catGroups });
+		}
+	} catch (error) {
+		return next(error);
+	}
+});
+
 /** PUT /[id]
  * Updates information for a category group.
  * 

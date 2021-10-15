@@ -159,7 +159,7 @@ class Category {
 			[ id ]
 		);
 		const category = result.rows[0];
-		if (!category) throw new NotFoundError(`There is no category with the id ${id}.`);
+		if (!category) throw new NotFoundError(`There is no category with id ${id}.`);
 	}
 }
 

@@ -1,0 +1,45 @@
+{
+    "$id": "http://example.com/example.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "default": {},
+    "description": "The defaultSaleUpdate schema comprises the entire JSON document.",
+    "examples": [
+        {
+            "restaurantId": 1,
+            "mealPeriodId": 3,
+            "dayId": 7,
+            "total": 5000.0,
+            "notes": "Expected Sunday dinner sales"
+        }
+    ],
+    "required": [
+        "total"
+    ],
+    "title": "defaultSaleUpdate: schema for updating default sale record.",
+    "type": "object",
+    "properties": {
+        "total": {
+            "$id": "#/properties/total",
+            "default": 0.0,
+            "description": "An explanation about the purpose of this instance.",
+            "examples": [
+                5000.0
+            ],
+            "title": "The total schema",
+            "maximum": 99999999,
+            "minimum": -99999999,
+            "type": "number"
+        },
+        "notes": {
+            "$id": "#/properties/notes",
+            "type": "string",
+            "title": "The notes schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "Expected Sunday dinner sales"
+            ]
+        }
+    },
+    "additionalProperties": true
+}

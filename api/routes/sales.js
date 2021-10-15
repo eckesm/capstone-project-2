@@ -7,7 +7,7 @@ const jsonschema = require('jsonschema');
 const { BadRequestError } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
 const { checkMealPeriodExists } = require('../helpers/checkExist');
-const { checkUserIsRestAccess, checkUserIsRestAdmin } = require('../helpers/checkAccess');
+const { checkUserIsRestAccess } = require('../helpers/checkAccess');
 
 const Sale = require('../models/sale');
 

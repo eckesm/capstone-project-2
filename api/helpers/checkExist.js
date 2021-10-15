@@ -9,7 +9,7 @@ async function checkRestaurantExists(id) {
 		[ id ]
 	);
 	if (result.rows[0]) return true;
-	throw new NotFoundError(`There is no restaurant with ID ${id}.`);
+	throw new NotFoundError(`There is no restaurant with id ${id}.`);
 }
 
 async function checkUserExists(id) {
@@ -20,7 +20,7 @@ async function checkUserExists(id) {
 		[ id ]
 	);
 	if (result.rows[0]) return true;
-	throw new NotFoundError(`There is no user with ID ${id}.`);
+	throw new NotFoundError(`There is no user with id ${id}.`);
 }
 
 async function checkMealPeriodExists(id) {
@@ -31,7 +31,7 @@ async function checkMealPeriodExists(id) {
 		[ id ]
 	);
 	if (result.rows[0]) return true;
-	throw new NotFoundError(`There is no meal period with ID ${id}.`);
+	throw new NotFoundError(`There is no meal period with id ${id}.`);
 }
 
 async function checkCatGroupExists(id) {
@@ -42,7 +42,7 @@ async function checkCatGroupExists(id) {
 		[ id ]
 	);
 	if (result.rows[0]) return true;
-	throw new NotFoundError(`There is no category group with ID ${id}.`);
+	throw new NotFoundError(`There is no category group with id ${id}.`);
 }
 
 async function checkCategoryExists(id) {
@@ -53,7 +53,7 @@ async function checkCategoryExists(id) {
 		[ id ]
 	);
 	if (result.rows[0]) return true;
-	throw new NotFoundError(`There is no category with ID ${id}.`);
+	throw new NotFoundError(`There is no category with id ${id}.`);
 }
 
 async function checkMealPeriodCatExists(id) {
@@ -64,7 +64,40 @@ async function checkMealPeriodCatExists(id) {
 		[ id ]
 	);
 	if (result.rows[0]) return true;
-	throw new NotFoundError(`There is no meal period / category association with ID ${id}.`);
+	throw new NotFoundError(`There is no meal period / category association with id ${id}.`);
+}
+
+async function checkDayOfWeekExists(id) {
+	const result = await db.query(
+		`SELECT id
+        FROM days_of_week
+        WHERE id = $1`,
+		[ id ]
+	);
+	if (result.rows[0]) return true;
+	throw new NotFoundError(`There is no day of the week with id ${id}.`);
+}
+
+async function checkSaleExists(id) {
+	const result = await db.query(
+		`SELECT id
+        FROM sales
+        WHERE id = $1`,
+		[ id ]
+	);
+	if (result.rows[0]) return true;
+	throw new NotFoundError(`There is no sale record with id ${id}.`);
+}
+
+async function checkDefaultSaleExists(id) {
+	const result = await db.query(
+		`SELECT id
+        FROM default_sales
+        WHERE id = $1`,
+		[ id ]
+	);
+	if (result.rows[0]) return true;
+	throw new NotFoundError(`There is no default sale entry with id ${id}.`);
 }
 
 async function checkInvoiceExists(id) {
@@ -75,7 +108,7 @@ async function checkInvoiceExists(id) {
 		[ id ]
 	);
 	if (result.rows[0]) return true;
-	throw new NotFoundError(`There is no invoice with ID ${id}.`);
+	throw new NotFoundError(`There is no invoice with id ${id}.`);
 }
 
 module.exports = {
@@ -85,5 +118,8 @@ module.exports = {
 	checkCatGroupExists,
 	checkCategoryExists,
 	checkMealPeriodCatExists,
+	checkDayOfWeekExists,
+	checkSaleExists,
+	checkDefaultSaleExists,
 	checkInvoiceExists
 };

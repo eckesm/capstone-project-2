@@ -62,7 +62,9 @@ class CatGroup {
 	 * Accepts: restaurantId
 	 * Returns: [{id, restaurantId, name, notes},...]
 	 */
-	static async getAllRestaurantGroups(restaurantId) {
+	static async getAllForRestaurant(restaurantId) {
+		await checkRestaurantExists(restaurantId);
+
 		const result = await db.query(
 			`SELECT id, restaurant_id AS "restaurantId", name, notes
 				FROM cat_groups
@@ -108,7 +110,7 @@ class CatGroup {
 			[ id ]
 		);
 		const catGroup = result.rows[0];
-		if (!catGroup) throw new NotFoundError(`There is no category group with the id ${id}.`);
+		if (!catGroup) throw new NotFoundError(`There is no category group with id ${id}.`);
 	}
 }
 

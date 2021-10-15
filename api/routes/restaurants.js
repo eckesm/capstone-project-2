@@ -14,6 +14,7 @@ const Category = require('../models/category');
 const CatGroup = require('../models/catGroup');
 const MealPeriod = require('../models/mealPeriod');
 const MealPeriod_Category = require('../models/mealPeriod_category');
+const DefaultSale = require('../models/defaultSale');
 const Invoice = require('../models/invoice');
 
 const restaurantNewSchema = require('../schemas/restaurantNew.json');
@@ -34,6 +35,7 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
 			const errs = validator.errors.map(e => e.stack);
 			throw new BadRequestError(errs);
 		}
+
 		const ownerId = res.locals.user.id;
 		const restaurant = await Restaurant.register(ownerId, req.body);
 		return res.status(201).json({ restaurant });
@@ -52,18 +54,19 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
  */
 router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
-		const restaurantId = req.params.id;
 		const userId = res.locals.user.id;
+		const restaurantId = req.params.id;
 
 		// Check that user is admin for restaurant
 		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
 			const restaurant = await Restaurant.get(restaurantId);
+			restaurant.mealPeriods = await MealPeriod.getAllForRestaurant(restaurantId);
 			restaurant.categories = await Category.getAllForRestaurant(restaurantId);
-			restaurant.catGroups = await CatGroup.getAllRestaurantGroups(restaurantId);
-			restaurant.mealPeriods = await MealPeriod.getAllRestaurantMealPeriods(restaurantId);
-			restaurant.mealPeriod_categories = await MealPeriod_Category.getAllRestaurantMealPeriodCats(restaurantId);
-			restaurant.invoices = await Invoice.getAllRestaurantInvoices(restaurantId);
+			restaurant.catGroups = await CatGroup.getAllForRestaurant(restaurantId);
+			restaurant.mealPeriod_categories = await MealPeriod_Category.getAllForRestaurant(restaurantId);
+			restaurant.invoices = await Invoice.getAllForRestaurant(restaurantId);
+			restaurant.defaultSales = await DefaultSale.getAllForRestaurant(restaurantId);
 
 			return res.status(200).json({ restaurant });
 		}
@@ -88,8 +91,9 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 			const errs = validator.errors.map(e => e.stack);
 			throw new BadRequestError(errs);
 		}
-		const restaurantId = req.params.id;
+
 		const userId = res.locals.user.id;
+		const restaurantId = req.params.id;
 
 		// Check that user is admin for restaurant
 		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
@@ -112,8 +116,8 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
  */
 router.delete('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
-		const restaurantId = req.params.id;
 		const userId = res.locals.user.id;
+		const restaurantId = req.params.id;
 
 		// Check that user is admin for restaurant
 		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
@@ -192,7 +196,7 @@ router.delete('/:restaurantId/users/:deleteUserId', ensureLoggedIn, async functi
 		// Check that user is admin for restaurant
 		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
-			const restUser = await Restaurant_User.remove(restaurantId, deleteUserId);
+			await Restaurant_User.remove(restaurantId, deleteUserId);
 			return res.status(201).json({ deleted: { restaurantId, userId: deleteUserId } });
 		}
 	} catch (error) {

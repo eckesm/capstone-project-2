@@ -2,10 +2,11 @@
 
 const db = require('../db');
 const { BadRequestError, NotFoundError } = require('../expressError');
+const { checkRestaurantExists, checkMealPeriodCatExists,checkSaleExists } = require('../helpers/checkExist');
 
 class Sale {
 	/** REGISTER
-     * Adds a sale to the database.
+     * Adds a sale record to the database.
      * 
      * Accepts: {restaurantId, mealPeriodCatId, date, expectedSales, actualSales, notes}
      * Returns: {id, restaurantId, mealPeriodCatId, date, expectedSales, actualSales, note}
@@ -13,6 +14,9 @@ class Sale {
      * Throws BadRequestError if name is a duplicate.
      */
 	static async register({ restaurantId, mealPeriodCatId, date, expectedSales, actualSales, notes }) {
+		await checkRestaurantExists(restaurantId);
+		await checkMealPeriodCatExists(mealPeriodCatId);
+
 		const duplicateCheck = await db.query(
 			`SELECT restaurant_id, meal_period_category_id, date
             FROM sales
@@ -74,38 +78,6 @@ class Sale {
 		return sale;
 	}
 
-	/** GET ALL FOR GROUP
-	 * Get all categories for a single group.
-	 * 
-	 * Accepts: catGroupId
-	 * Returns: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]
-	 */
-	// static async getAllForGroup(catGroupId) {
-	// 	const result = await db.query(
-	// 		`SELECT id, restaurant_id AS "restaurantId", name, cat_group_id AS "catGroupId", cogs_percent AS "cogsPercent", notes
-	// 		FROM categories
-	// 		WHERE cat_group_id = $1`,
-	// 		[ catGroupId ]
-	// 	);
-	// 	return result.rows;
-	// }
-
-	/** GET ALL FOR RESTAURANT
-	 * Returns array of all categories associated with a restaurant.
-	 * 
-	 * Accepts: restaurantId
-	 * Returns: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]
-	 */
-	// static async getAllForRestaurant(restaurantId) {
-	// 	const result = await db.query(
-	// 		`SELECT id, restaurant_id AS "restaurantId", name, cat_group_id AS "catGroupId", cogs_percent AS "cogsPercent", notes
-	// 		FROM categories
-	// 		WHERE restaurant_id = $1`,
-	// 		[ restaurantId ]
-	// 	);
-	// 	return result.rows;
-	// }
-
 	/** UPDATE
 	 * Updates expected sales, actual sales, and notes for a sale record.
 	 * 
@@ -113,6 +85,8 @@ class Sale {
 	 * Returns: {id, restaurantId, name, catGroupId, cogsPercent, notes}
 	 */
 	static async update(id, { expectedSales, actualSales, notes }) {
+		await checkSaleExists(id)
+		
 		const result = await db.query(
 			`UPDATE sales
 			SET expected_sales = $1, actual_sales = $2, notes = $3
@@ -139,7 +113,7 @@ class Sale {
 			[ id ]
 		);
 		const sales = result.rows[0];
-		if (!sales) throw new NotFoundError(`There is no sales record with the id ${id}.`);
+		if (!sales) throw new NotFoundError(`There is no sales record with id ${id}.`);
 	}
 }
 

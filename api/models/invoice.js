@@ -2,8 +2,7 @@
 
 const db = require('../db');
 const { BadRequestError, NotFoundError } = require('../expressError');
-const { checkInvoiceExists } = require('../helpers/checkExist');
-const { checkCategoryAndGroup } = require('../helpers/checkSameRestaurant');
+const { checkRestaurantExists, checkInvoiceExists } = require('../helpers/checkExist');
 
 class Invoice {
 	/** REGISTER
@@ -15,6 +14,8 @@ class Invoice {
      * Throws BadRequestError if name is a duplicate.
      */
 	static async register({ restaurantId, date, invoice, vendor, total, notes }) {
+		await checkRestaurantExists(restaurantId);
+
 		const duplicateCheck = await db.query(
 			`SELECT restaurant_id, vendor, invoice
             FROM invoices
@@ -22,8 +23,7 @@ class Invoice {
 			[ restaurantId, vendor, invoice ]
 		);
 
-		if (duplicateCheck.rows[0])
-			throw new BadRequestError(`Invoice already exists.`);
+		if (duplicateCheck.rows[0]) throw new BadRequestError(`Invoice already exists.`);
 
 		const result = await db.query(
 			`INSERT INTO invoices (restaurant_id, date, invoice, vendor, total, notes)
@@ -54,29 +54,15 @@ class Invoice {
 		return invoice;
 	}
 
-	/** GET ALL FOR GROUP
-	 * Get all categories for a single group.
-	 * 
-	 * Accepts: catGroupId
-	 * Returns: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]
-	 */
-	// static async getAllForGroup(catGroupId) {
-	// 	const result = await db.query(
-	// 		`SELECT id, restaurant_id AS "restaurantId", name, cat_group_id AS "catGroupId", cogs_percent AS "cogsPercent", notes
-	// 		FROM categories
-	// 		WHERE cat_group_id = $1`,
-	// 		[ catGroupId ]
-	// 	);
-	// 	return result.rows;
-	// }
-
 	/** GET ALL FOR RESTAURANT
 	 * Returns array of all categories associated with a restaurant.
 	 * 
 	 * Accepts: restaurantId
 	 * Returns: [{id, restaurantId, date, invoice, vendor, total, notes},...]
 	 */
-	static async getAllRestaurantInvoices(restaurantId) {
+	static async getAllForRestaurant(restaurantId) {
+		await checkRestaurantExists(restaurantId);
+
 		const result = await db.query(
 			`SELECT id, restaurant_id AS "restaurantId", date, invoice, vendor, total, notes
 			FROM invoices
@@ -93,6 +79,8 @@ class Invoice {
 	 * Returns: {id, restaurantId, date, invoice, vendor, total, notes}
 	 */
 	static async update(id, { date, invoice, vendor, total, notes }) {
+		await checkInvoiceExists(id);
+
 		const result = await db.query(
 			`UPDATE invoices
 			SET date = $1, invoice = $2, vendor = $3, total = $4, notes = $5
@@ -119,7 +107,7 @@ class Invoice {
 			[ id ]
 		);
 		const category = result.rows[0];
-		if (!category) throw new NotFoundError(`There is no invoice with the id ${id}.`);
+		if (!category) throw new NotFoundError(`There is no invoice with id ${id}.`);
 	}
 }
 

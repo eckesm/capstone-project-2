@@ -73,7 +73,7 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 	}
 });
 
-/** GET /invoices/[invoiceId]
+/** GET ALL /invoices/[invoiceId]
  * Gets all expenses for an invoice.
  
  * Returns JSON: {expenses: [{id, restaurantId, categoryId, invoiceId, amount, notes},...]}
@@ -92,7 +92,7 @@ router.get('/invoices/:invoiceId', ensureLoggedIn, async function(req, res, next
 		// Check that user has access to the restaurant
 		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
-			const expenses = await Expense.getAllInvoiceExpenses(invoiceId);
+			const expenses = await Expense.getAllForInvoice(invoiceId);
 			return res.status(200).json({ expenses });
 		}
 	} catch (error) {

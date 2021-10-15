@@ -2,6 +2,7 @@
 
 const db = require('../db');
 const { BadRequestError, NotFoundError } = require('../expressError');
+const { checkRestaurantExists, checkMealPeriodExists } = require('../helpers/checkExist');
 
 class MealPeriod {
 	/** REGISTER
@@ -13,6 +14,8 @@ class MealPeriod {
      * Throws BadRequestError if name is a duplicate.
      */
 	static async register({ restaurantId, name, notes }) {
+		await checkRestaurantExists(restaurantId);
+
 		const duplicateCheck = await db.query(
 			`SELECT name
             FROM meal_periods
@@ -58,7 +61,9 @@ class MealPeriod {
 	 * Accepts: restaurantId
 	 * Returns: [{id, restaurantId, name, notes},...]
 	 */
-	static async getAllRestaurantMealPeriods(restaurantId) {
+	static async getAllForRestaurant(restaurantId) {
+		await checkRestaurantExists(restaurantId);
+
 		const result = await db.query(
 			`SELECT id, restaurant_id AS "restaurantId", name, notes
 			FROM meal_periods
@@ -75,6 +80,8 @@ class MealPeriod {
 	 * Returns: {id, restaurantId, name, notes}
 	 */
 	static async update(id, { name, notes }) {
+		await checkMealPeriodExists(id);
+
 		const result = await db.query(
 			`UPDATE meal_periods
 			SET name = $1, notes = $2

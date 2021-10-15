@@ -4,7 +4,8 @@ const db = require('../db');
 const { NotFoundError, BadRequestError } = require('../expressError');
 const Category = require('./category');
 const MealPeriod = require('./mealPeriod');
-
+const { checkRestaurantExists } = require('../helpers/checkExist');
+const { checkCategoryMealPeriod } = require('../helpers/checkSameRestaurant');
 
 class MealPeriod_Category {
 	/** REGISTER ASSOCIATION
@@ -16,13 +17,8 @@ class MealPeriod_Category {
 	 * Throws BadRequestError if association is not possible or if duplicate.
      */
 	static async register(restaurantId, mealPeriodId, categoryId, { salesPercentOfPeriod, notes }) {
-		const category = await Category.get(categoryId);
-		const mealPeriod = await MealPeriod.get(mealPeriodId);
-
-		if (category.restaurantId !== mealPeriod.restaurantId)
-			throw new BadRequestError(
-				`Category ${categoryId} is not associated with the same restaurant as meal period ${mealPeriodId}.`
-			);
+		await checkRestaurantExists(restaurantId);
+		await checkCategoryMealPeriod(categoryId, mealPeriodId);
 
 		const duplicateCheck = await db.query(
 			`SELECT restaurant_id, meal_period_id, category_id
@@ -72,7 +68,9 @@ class MealPeriod_Category {
 	 * Accepts: restaurantId
 	 * Returns: [{id, restaurantId, mealPeriodId, categoryId, salesPercentOfPeriod, notes},...]
 	 */
-	static async getAllRestaurantMealPeriodCats(restaurantId) {
+	static async getAllForRestaurant(restaurantId) {
+		await checkRestaurantExists(restaurantId);
+
 		const result = await db.query(
 			`SELECT id, restaurant_id AS "restaurantId", meal_period_id AS "mealPeriodId", category_id AS "categoryId", sales_percent_of_period AS "salesPercentOfPeriod", notes
 			FROM meal_periods_categories
@@ -89,6 +87,8 @@ class MealPeriod_Category {
      * Returns: {id, restaurantId, categoryId, mealPeriodId, salesPercentOfPeriod, notes}
 	 */
 	static async update(categoryId, mealPeriodId, { salesPercentOfPeriod, notes }) {
+		await checkCategoryMealPeriod(categoryId, mealPeriodId);
+
 		const result = await db.query(
 			`UPDATE meal_periods_categories
 			SET sales_percent_of_period = $1, notes = $2
