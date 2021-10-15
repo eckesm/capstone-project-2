@@ -36,6 +36,7 @@ INSERT INTO categories(restaurant_id,cat_group_id,name,cogs_percent,notes)
 VALUES  (1,1,'Wine',0.30,''),
         (1,1,'Beer',0.10,''),
         (1,1,'Liquor',0.20,''),
+        (1,2,'Food',0.33,'The food guests eat.'),
         (1,null,'Retail',0.50,'');
 
 INSERT INTO meal_periods(restaurant_id,name,notes)
@@ -62,3 +63,10 @@ VALUES  (1,'Monday'),
 
 INSERT INTO default_sales(restaurant_id,meal_period_id,day_id,total,notes)
 VALUES  (1,3,6,12500.00,'Expected Saturday dinner sales');
+
+INSERT INTO invoices (restaurant_id, date, invoice, vendor, total, notes)
+VALUES  (1,'2021-10-15','100001','Pizza Supply Company',236.93,'Trying a new sauce vendor.');
+
+INSERT INTO expenses (restaurant_id, category_id, invoice_id, amount, notes)
+VALUES  (1,4,1,136.93,'3 x 1 gallon tomatoes'),
+        (1,4,1,100,'Olive oil');

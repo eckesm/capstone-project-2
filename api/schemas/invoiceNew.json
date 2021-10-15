@@ -1,0 +1,90 @@
+{
+    "$id": "http://example.com/example.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "default": {},
+    "description": "The invoiceNew schema comprises the entire JSON document.",
+    "examples": [
+        {
+            "restaurantId": 1,
+            "date": "2021-10-15",
+            "invoice": "934802934",
+            "vendor": "Cheesey Pete's",
+            "total": 249.99,
+            "notes": "Wheels of mozzarella mostly."
+        }
+    ],
+    "required": [
+        "restaurantId",
+        "date",
+        "invoice",
+        "vendor",
+        "total"
+    ],
+    "title": "invoiceNew: schema for adding invoices.",
+    "type": "object",
+    "properties": {
+        "restaurantId": {
+            "$id": "#/properties/restaurantId",
+            "type": "integer",
+            "title": "The restaurantId schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": 0,
+            "examples": [
+                1
+            ]
+        },
+        "date": {
+            "$id": "#/properties/date",
+            "type": "string",
+            "title": "The date schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "2021-10-15"
+            ]
+        },
+        "invoice": {
+            "$id": "#/properties/invoice",
+            "type": "string",
+            "title": "The invoice schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "934802934"
+            ]
+        },
+        "vendor": {
+            "$id": "#/properties/vendor",
+            "type": "string",
+            "title": "The vendor schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "Cheesey Pete's"
+            ]
+        },
+        "total": {
+            "$id": "#/properties/total",
+            "default": 0.0,
+            "description": "An explanation about the purpose of this instance.",
+            "examples": [
+                249.99
+            ],
+            "title": "The total schema",
+            "maximum": 99999999,
+            "minimum": -99999999,
+            "type": "number"
+        },
+        "notes": {
+            "$id": "#/properties/notes",
+            "type": "string",
+            "title": "The notes schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "Wheels of mozzarella mostly."
+            ]
+        }
+    },
+    "additionalProperties": true
+}

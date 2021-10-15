@@ -75,14 +75,14 @@ CREATE TABLE sales (
     REFERENCES restaurants(id) ON DELETE CASCADE,
   meal_period_category_id INTEGER
     REFERENCES meal_periods_categories(id) ON DELETE CASCADE,
-  date DATE,
+  date DATE NOT NULL,
   expected_sales DECIMAL(10,2),
   actual_sales DECIMAL(10,2),
   notes TEXT,
   PRIMARY KEY (restaurant_id, meal_period_category_id,date)
 );
 
-CREATE TABLE days_of_week(
+CREATE TABLE days_of_week (
   id INTEGER PRIMARY KEY,
   name VARCHAR(10) NOT NULL
 );
@@ -98,4 +98,27 @@ CREATE TABLE default_sales (
   total DECIMAL(10,2),
   notes TEXT,
   PRIMARY KEY (restaurant_id, meal_period_id,day_id)
+);
+
+CREATE TABLE invoices (
+  id SERIAL PRIMARY KEY,
+  restaurant_id INTEGER
+    REFERENCES restaurants(id) ON DELETE CASCADE,
+  date DATE NOT NULL,
+  invoice VARCHAR(50) NOT NULL,
+  vendor VARCHAR(50) NOT NULL,
+  total DECIMAL(10,2) NOT NULL,
+  notes TEXT
+);
+
+CREATE TABLE expenses (
+  id SERIAL PRIMARY KEY,
+  restaurant_id INTEGER
+    REFERENCES restaurants(id) ON DELETE CASCADE,
+  category_id INTEGER
+    REFERENCES categories(id) ON DELETE CASCADE,
+  invoice_id INTEGER
+    REFERENCES invoices(id) ON DELETE CASCADE,
+  amount DECIMAL(10,2) NOT NULL,
+  notes TEXT
 );

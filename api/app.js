@@ -12,6 +12,7 @@ const categoriesRoutes = require('./routes/categories');
 const mealPeriodRoutes = require('./routes/mealPeriods');
 const salesRoutes = require('./routes/sales');
 const defaultSalesRoutes = require('./routes/defaultSales');
+const invoicesRoutes = require('./routes/invoices');
 
 const app = express();
 app.use(cors());
@@ -26,6 +27,7 @@ app.use('/categories', categoriesRoutes);
 app.use('/mealperiods', mealPeriodRoutes);
 app.use('/sales', salesRoutes);
 app.use('/defaultsales', defaultSalesRoutes);
+app.use('/invoices', invoicesRoutes);
 
 /** 404 catch --- pass to the next handler. */
 app.use(function(req, res, next) {

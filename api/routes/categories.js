@@ -33,7 +33,7 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
 		}
 
 		const userId = res.locals.user.id;
-		const { restaurantId, catGroupId } = req.body;
+		const { restaurantId } = req.body;
 
 		// Check that user is admin for restaurant
 		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);

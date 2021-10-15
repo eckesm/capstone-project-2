@@ -14,6 +14,7 @@ const Category = require('../models/category');
 const CatGroup = require('../models/catGroup');
 const MealPeriod = require('../models/mealPeriod');
 const MealPeriod_Category = require('../models/mealPeriod_category');
+const Invoice = require('../models/invoice');
 
 const restaurantNewSchema = require('../schemas/restaurantNew.json');
 const restaurantUpdateSchema = require('../schemas/restaurantUpdate.json');
@@ -44,7 +45,7 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
 /** GET /[id]
  * Gets restaurant informaion for a single restaurant.
  * 
- * Returns JSON: {restaurant: {id, ownerId, name, address, phone, email, website, notes}}
+ * Returns JSON: {restaurant: {id, ownerId, name, address, phone, email, website, notes, categories, catGroups, mealPeriods, mealPeriod_categories, invoices}}
  * 
  * Authorization: ensure logged in.
  * Access: all restaurant users.
@@ -62,6 +63,7 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 			restaurant.catGroups = await CatGroup.getAllRestaurantGroups(restaurantId);
 			restaurant.mealPeriods = await MealPeriod.getAllRestaurantMealPeriods(restaurantId);
 			restaurant.mealPeriod_categories = await MealPeriod_Category.getAllRestaurantMealPeriodCats(restaurantId);
+			restaurant.invoices = await Invoice.getAllRestaurantInvoices(restaurantId);
 
 			return res.status(200).json({ restaurant });
 		}
