@@ -11,6 +11,7 @@ const { checkUserIsRestAccess, checkUserIsRestAdmin } = require('../helpers/chec
 const Category = require('../models/category');
 const Restaurant = require('../models/restaurant');
 const Invoice = require('../models/invoice');
+const Expense = require('../models/expense');
 
 const invoiceNewSchema = require('../schemas/invoiceNew.json');
 const invoiceUpdateSchema = require('../schemas/invoiceUpdate.json');
@@ -67,6 +68,9 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 		if (checkAccess) {
 			const restaurant = await Restaurant.get(restaurantId);
 			invoice.restaurantName = restaurant.name;
+			const expenses = await Expense.getAllInvoiceExpenses(invoiceId);
+			invoice.expenses = expenses;
+
 			return res.status(200).json({ invoice });
 		}
 	} catch (error) {

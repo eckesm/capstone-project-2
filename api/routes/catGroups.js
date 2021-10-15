@@ -4,7 +4,7 @@ const express = require('express');
 const router = new express.Router();
 const jsonschema = require('jsonschema');
 
-const { BadRequestError, } = require('../expressError');
+const { BadRequestError } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
 const { checkUserIsRestAccess, checkUserIsRestAdmin } = require('../helpers/checkAccess');
 
@@ -56,8 +56,8 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
  */
 router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
-		const catGroupId = req.params.id;
 		const userId = res.locals.user.id;
+		const catGroupId = req.params.id;
 
 		const catGroup = await CatGroup.get(catGroupId);
 		const restaurantId = catGroup.restaurantId;
@@ -93,11 +93,11 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 			const errs = validator.errors.map(e => e.stack);
 			throw new BadRequestError(errs);
 		}
-		const catGroupId = req.params.id;
 		const userId = res.locals.user.id;
+		const catGroupId = req.params.id;
 
-		const checkCatGroup = await CatGroup.get(catGroupId);
-		const restaurantId = checkCatGroup.restaurantId;
+		const existingCatGroup = await CatGroup.get(catGroupId);
+		const restaurantId = existingCatGroup.restaurantId;
 
 		// Check that user is admin for restaurant
 		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
@@ -120,11 +120,11 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
  */
 router.delete('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
-		const catGroupId = req.params.id;
 		const userId = res.locals.user.id;
+		const catGroupId = req.params.id;
 
-		const checkCatGroup = await CatGroup.get(catGroupId);
-		const restaurantId = checkCatGroup.restaurantId;
+		const catGroup = await CatGroup.get(catGroupId);
+		const restaurantId = catGroup.restaurantId;
 
 		// Check that user is admin for restaurant
 		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);

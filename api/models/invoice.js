@@ -2,7 +2,7 @@
 
 const db = require('../db');
 const { BadRequestError, NotFoundError } = require('../expressError');
-const { checkCatGroupExists } = require('../helpers/checkExist');
+const { checkInvoiceExists } = require('../helpers/checkExist');
 const { checkCategoryAndGroup } = require('../helpers/checkSameRestaurant');
 
 class Invoice {

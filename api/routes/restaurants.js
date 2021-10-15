@@ -59,7 +59,7 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
 			const restaurant = await Restaurant.get(restaurantId);
-			restaurant.categories = await Category.getAllRestaurantCategories(restaurantId);
+			restaurant.categories = await Category.getAllForRestaurant(restaurantId);
 			restaurant.catGroups = await CatGroup.getAllRestaurantGroups(restaurantId);
 			restaurant.mealPeriods = await MealPeriod.getAllRestaurantMealPeriods(restaurantId);
 			restaurant.mealPeriod_categories = await MealPeriod_Category.getAllRestaurantMealPeriodCats(restaurantId);

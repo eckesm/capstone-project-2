@@ -9,7 +9,6 @@ async function checkRestaurantExists(id) {
 		[ id ]
 	);
 	if (result.rows[0]) return true;
-	// return false;
 	throw new NotFoundError(`There is no restaurant with ID ${id}.`);
 }
 
@@ -21,7 +20,6 @@ async function checkUserExists(id) {
 		[ id ]
 	);
 	if (result.rows[0]) return true;
-	// return false;
 	throw new NotFoundError(`There is no user with ID ${id}.`);
 }
 
@@ -34,7 +32,6 @@ async function checkMealPeriodExists(id) {
 	);
 	if (result.rows[0]) return true;
 	throw new NotFoundError(`There is no meal period with ID ${id}.`);
-	// return false;
 }
 
 async function checkCatGroupExists(id) {
@@ -45,7 +42,6 @@ async function checkCatGroupExists(id) {
 		[ id ]
 	);
 	if (result.rows[0]) return true;
-	// return false;
 	throw new NotFoundError(`There is no category group with ID ${id}.`);
 }
 
@@ -57,7 +53,6 @@ async function checkCategoryExists(id) {
 		[ id ]
 	);
 	if (result.rows[0]) return true;
-	// return false;
 	throw new NotFoundError(`There is no category with ID ${id}.`);
 }
 
@@ -69,8 +64,18 @@ async function checkMealPeriodCatExists(id) {
 		[ id ]
 	);
 	if (result.rows[0]) return true;
-	// return false;
 	throw new NotFoundError(`There is no meal period / category association with ID ${id}.`);
+}
+
+async function checkInvoiceExists(id) {
+	const result = await db.query(
+		`SELECT id
+        FROM invoices
+        WHERE id = $1`,
+		[ id ]
+	);
+	if (result.rows[0]) return true;
+	throw new NotFoundError(`There is no invoice with ID ${id}.`);
 }
 
 module.exports = {
@@ -79,5 +84,6 @@ module.exports = {
 	checkMealPeriodExists,
 	checkCatGroupExists,
 	checkCategoryExists,
-	checkMealPeriodCatExists
+	checkMealPeriodCatExists,
+	checkInvoiceExists
 };

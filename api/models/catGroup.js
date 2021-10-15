@@ -2,6 +2,7 @@
 
 const db = require('../db');
 const { BadRequestError, NotFoundError } = require('../expressError');
+const { checkRestaurantExists, checkCatGroupExists } = require('../helpers/checkExist');
 
 class CatGroup {
 	/** REGISTER
@@ -13,6 +14,8 @@ class CatGroup {
      * Throws BadRequestError if name is a duplicate.
      */
 	static async register({ restaurantId, name, notes }) {
+		await checkRestaurantExists(restaurantId);
+
 		const duplicateCheck = await db.query(
 			`SELECT name
             FROM cat_groups
@@ -76,6 +79,8 @@ class CatGroup {
 	 * Returns: {id, restaurantId, name, notes}
 	 */
 	static async update(id, { name, notes }) {
+		await checkCatGroupExists(id);
+
 		const result = await db.query(
 			`UPDATE cat_groups
 			SET name = $1, notes = $2

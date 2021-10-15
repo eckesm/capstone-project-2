@@ -80,6 +80,57 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 	}
 });
 
+/** GET ALL FOR CATGROUP /catgroups/[catGroupId]
+ * Gets all categories for a group.
+ 
+ * Returns JSON: {categories: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]}
+
+ * Authorization: ensure logged in.
+ * Access: any restaurant user.
+ */
+router.get('/catgroups/:catGroupId', ensureLoggedIn, async function(req, res, next) {
+	try {
+		const userId = res.locals.user.id;
+		const { catGroupId } = req.params;
+
+		const catGroup = await CatGroup.get(catGroupId);
+		const categories = await Category.getAllForGroup(catGroupId);
+		const restaurantId = catGroup.restaurantId;
+
+		// Check that user has access to the restaurant
+		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
+		if (checkAccess) {
+			return res.status(200).json({ categories });
+		}
+	} catch (error) {
+		return next(error);
+	}
+});
+
+/** GET ALL FOR RESTAURANT /catgroups/[catGroupId]
+ * Gets all categories for a restaurant.
+ 
+ * Returns JSON: {categories: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]}
+
+ * Authorization: ensure logged in.
+ * Access: any restaurant user.
+ */
+router.get('/restaurants/:restaurantId', ensureLoggedIn, async function(req, res, next) {
+	try {
+		const userId = res.locals.user.id;
+		const { restaurantId } = req.params;
+
+		// Check that user has access to the restaurant
+		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
+		if (checkAccess) {
+			const categories = await Category.getAllForRestaurant(restaurantId);
+			return res.status(200).json({ categories });
+		}
+	} catch (error) {
+		return next(error);
+	}
+});
+
 /** PATCH /[categoryId]/catgroup/[catGroupId]
  * Changes category group only for a single category.
  * 
@@ -90,11 +141,11 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
  */
 router.patch('/:categoryId/group/:catGroupId', ensureLoggedIn, async function(req, res, next) {
 	try {
-		let { categoryId, catGroupId } = req.params;
 		const userId = res.locals.user.id;
+		let { categoryId, catGroupId } = req.params;
 
-		const checkCategory = await Category.get(categoryId);
-		const restaurantId = checkCategory.restaurantId;
+		const existingCategory = await Category.get(categoryId);
+		const restaurantId = existingCategory.restaurantId;
 
 		if (catGroupId === '0') {
 			catGroupId = null;
@@ -129,10 +180,10 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 		}
 		const categoryId = req.params.id;
 		const userId = res.locals.user.id;
-		let  catGroupId = req.body.catGroupId
+		let { catGroupId } = req.body;
 
-		const checkCategory = await Category.get(categoryId);
-		const restaurantId = checkCategory.restaurantId;
+		const existingCategory = await Category.get(categoryId);
+		const restaurantId = existingCategory.restaurantId;
 
 		if (catGroupId === '0' || catGroupId === undefined) {
 			catGroupId = null;
@@ -159,8 +210,8 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
  */
 router.delete('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
-		const categoryId = req.params.id;
 		const userId = res.locals.user.id;
+		const categoryId = req.params.id;
 
 		const checkCategory = await Category.get(categoryId);
 		const restaurantId = checkCategory.restaurantId;

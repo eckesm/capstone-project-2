@@ -2,7 +2,7 @@
 
 const db = require('../db');
 const { BadRequestError, NotFoundError } = require('../expressError');
-const { checkCatGroupExists } = require('../helpers/checkExist');
+const { checkRestaurantExists, checkCatGroupExists, checkCategoryExists } = require('../helpers/checkExist');
 const { checkCategoryAndGroup } = require('../helpers/checkSameRestaurant');
 
 class Category {
@@ -15,7 +15,9 @@ class Category {
      * Throws BadRequestError if name is a duplicate.
      */
 	static async register({ restaurantId, name, catGroupId, cogsPercent, notes }) {
+		await checkRestaurantExists(restaurantId);
 		await checkCatGroupExists(catGroupId);
+
 		const duplicateCheck = await db.query(
 			`SELECT name
             FROM categories
@@ -62,6 +64,8 @@ class Category {
 	 * Returns: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]
 	 */
 	static async getAllForGroup(catGroupId) {
+		await checkCatGroupExists(catGroupId);
+
 		const result = await db.query(
 			`SELECT id, restaurant_id AS "restaurantId", name, cat_group_id AS "catGroupId", cogs_percent AS "cogsPercent", notes
 			FROM categories
@@ -77,7 +81,9 @@ class Category {
 	 * Accepts: restaurantId
 	 * Returns: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]
 	 */
-	static async getAllRestaurantCategories(restaurantId) {
+	static async getAllForRestaurant(restaurantId) {
+		await checkRestaurantExists(restaurantId);
+
 		const result = await db.query(
 			`SELECT id, restaurant_id AS "restaurantId", name, cat_group_id AS "catGroupId", cogs_percent AS "cogsPercent", notes
 			FROM categories
@@ -85,24 +91,6 @@ class Category {
 			[ restaurantId ]
 		);
 		return result.rows;
-	}
-
-	/** UPDATE
-	 * Replace category's name, category group ID, COGS percentage, notes.
-	 * 
-	 * Accepts: id, {name, catGroupId, cogsPercent, notes}
-	 * Returns: {id, restaurantId, name, catGroupId, cogsPercent, notes}
-	 */
-	static async update(id, { name, catGroupId, cogsPercent, notes }) {
-		await checkCategoryAndGroup(id, catGroupId);
-		const result = await db.query(
-			`UPDATE categories
-			SET name = $1, cat_group_id = $2, cogs_percent = $3, notes = $4
-			WHERE id = $5
-			RETURNING id, restaurant_id as "restaurantId", name, cat_group_id AS "catGroupId", cogs_percent AS "cogsPercent", notes`,
-			[ name, catGroupId, cogsPercent, notes, id ]
-		);
-		return result.rows[0];
 	}
 
 	/** CHANGE CATEGORY GROUP
@@ -113,6 +101,7 @@ class Category {
 	 */
 	static async changeCatGroup(id, catGroupId) {
 		await checkCategoryAndGroup(id, catGroupId);
+
 		let result;
 		if (catGroupId === null) {
 			result = await db.query(
@@ -132,6 +121,25 @@ class Category {
 				[ catGroupId, id ]
 			);
 		}
+		return result.rows[0];
+	}
+
+	/** UPDATE
+	 * Replace category's name, category group ID, COGS percentage, notes.
+	 * 
+	 * Accepts: id, {name, catGroupId, cogsPercent, notes}
+	 * Returns: {id, restaurantId, name, catGroupId, cogsPercent, notes}
+	 */
+	static async update(id, { name, catGroupId, cogsPercent, notes }) {
+		await checkCategoryAndGroup(id, catGroupId);
+
+		const result = await db.query(
+			`UPDATE categories
+			SET name = $1, cat_group_id = $2, cogs_percent = $3, notes = $4
+			WHERE id = $5
+			RETURNING id, restaurant_id as "restaurantId", name, cat_group_id AS "catGroupId", cogs_percent AS "cogsPercent", notes`,
+			[ name, catGroupId, cogsPercent, notes, id ]
+		);
 		return result.rows[0];
 	}
 

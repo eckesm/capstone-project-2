@@ -96,7 +96,7 @@ class Sale {
 	 * Accepts: restaurantId
 	 * Returns: [{id, restaurantId, name, catGroupId, cogsPercent, notes},...]
 	 */
-	// static async getAllRestaurantCategories(restaurantId) {
+	// static async getAllForRestaurant(restaurantId) {
 	// 	const result = await db.query(
 	// 		`SELECT id, restaurant_id AS "restaurantId", name, cat_group_id AS "catGroupId", cogs_percent AS "cogsPercent", notes
 	// 		FROM categories
