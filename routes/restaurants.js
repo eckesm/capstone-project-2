@@ -66,7 +66,7 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 			restaurant.catGroups = await CatGroup.getAllForRestaurant(restaurantId);
 			restaurant.mealPeriod_categories = await MealPeriod_Category.getAllForRestaurant(restaurantId);
 			restaurant.invoices = await Invoice.getAllForRestaurant(restaurantId);
-			restaurant.defaultSales = await DefaultSale.getAllForRestaurant(restaurantId);
+			restaurant.defau ltSales = await DefaultSale.getAllForRestaurant(restaurantId);
 
 			return res.status(200).json({ restaurant });
 		}
