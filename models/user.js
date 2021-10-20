@@ -87,8 +87,30 @@ class User {
 		const user = result.rows[0];
 		if (!user) throw new NotFoundError(`There is no user with the ID ${id}.`);
 
-		user.restaurants = await Restaurant_User.getAllUserRestaurants(id);
+		const restaurants = await Restaurant_User.getAllUserRestaurants(id);
 
+		for (let i = 0; i < restaurants.length; i++) {
+			let r = restaurants[i];
+			const res = await db.query(
+				`SELECT id, owner_id AS "ownerId", name, address, phone, email, website, notes
+				FROM restaurants
+				WHERE id = $1`,
+				[ r.restaurantId ]
+			);
+			const restaurant = res.rows[0];
+			r.id = restaurant.id;
+			r.name = restaurant.name;
+			r.address = restaurant.address;
+			r.phone = restaurant.phone;
+			r.email = restaurant.email;
+			r.website = restaurant.website;
+			r.notes = restaurant.notes;
+			r.ownerId = restaurant.ownerId;
+			delete r.userId;
+			delete r.restaurantId;
+		}
+
+		user.restaurants = restaurants;
 		return user;
 	}
 

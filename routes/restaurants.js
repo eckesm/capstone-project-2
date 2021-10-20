@@ -32,8 +32,9 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
 	try {
 		const validator = jsonschema.validate(req.body, restaurantNewSchema);
 		if (!validator.valid) {
-			const errs = validator.errors.map(e => e.stack);
-			throw new BadRequestError(errs);
+			const errors = validator.errors.map(e => e.stack);
+			// throw new BadRequestError(errors);
+			return res.status(200).json({ errors });
 		}
 
 		const ownerId = res.locals.user.id;
@@ -61,12 +62,17 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
 			const restaurant = await Restaurant.get(restaurantId);
+
+			// if (!restaurant) {
+			// 	return res.status(200).json({ message: 'Restaurant does not exist.' });
+			// }
+
 			restaurant.mealPeriods = await MealPeriod.getAllForRestaurant(restaurantId);
 			restaurant.categories = await Category.getAllForRestaurant(restaurantId);
 			restaurant.catGroups = await CatGroup.getAllForRestaurant(restaurantId);
 			restaurant.mealPeriod_categories = await MealPeriod_Category.getAllForRestaurant(restaurantId);
 			restaurant.invoices = await Invoice.getAllForRestaurant(restaurantId);
-			restaurant.defau ltSales = await DefaultSale.getAllForRestaurant(restaurantId);
+			restaurant.defaultSales = await DefaultSale.getAllForRestaurant(restaurantId);
 
 			return res.status(200).json({ restaurant });
 		}

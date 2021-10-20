@@ -3,7 +3,6 @@
 const db = require('../db');
 const { NotFoundError } = require('../expressError');
 const Restaurant_User = require('./restaurant_user');
-
 const { checkRestaurantExists, checkUserExists } = require('../helpers/checkExist');
 
 class Restaurant {
@@ -45,11 +44,26 @@ class Restaurant {
 		const restaurant = result.rows[0];
 		if (!restaurant) throw new NotFoundError(`There is no restaurant with the id ${id}.`);
 
-		const userRestaurantsRes = await Restaurant_User.getAllRestaurantUsers(id);
-		// restaurant.users = userRestaurantsRes.map(u => {
-		// 	return { userId: u.userId, isAdmin: u.isAdmin };
-		// });
-		restaurant.users = userRestaurantsRes;
+		const users = await Restaurant_User.getAllRestaurantUsers(id);
+
+		for (let i = 0; i < users.length; i++) {
+			let u = users[i];
+			const res = await db.query(
+				`SELECT id, email_address AS "emailAddress", first_name AS "firstName", last_name AS "lastName"
+		    	FROM users
+		    	WHERE id = $1`,
+				[ u.userId ]
+			);
+			const user = res.rows[0];
+			u.id = user.id;
+			u.firstName = user.firstName;
+			u.lastName = user.lastName;
+			u.emailAddres = user.emailAddress;
+			delete u.restaurantId;
+			delete u.userId;
+		}
+
+		restaurant.users = users;
 		return restaurant;
 	}
 
@@ -60,7 +74,7 @@ class Restaurant {
      * Returns: {id, ownerId, name, address, phone, email, website, notes}
      */
 	static async update(id, { name, address, phone, email, website, notes }) {
-		await checkRestaurantExists(id)
+		await checkRestaurantExists(id);
 
 		const result = await db.query(
 			`UPDATE restaurants

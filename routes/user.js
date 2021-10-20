@@ -34,6 +34,22 @@ router.post('/', async function(req, res, next) {
 	}
 });
 
+/** GET /token
+ * Gets user informaion for a single user from token.
+ * 
+ * Returns JSON: {user: {id, emailAddress, firstName, lastName}}
+ * 
+ * Authorization: ensure correct user
+ */
+router.get('/token', async function(req, res, next) {
+	try {
+		const user = await User.get(res.locals.user.id);
+		return res.status(200).json({ user });
+	} catch (error) {
+		return next(error);
+	}
+});
+
 /** GET /[id]
  * Gets user informaion for a single user.
  * 
