@@ -48,7 +48,7 @@ class Restaurant_User {
 		const result = await db.query(
 			`SELECT id, restaurant_id AS "restaurantId", user_id AS "userId", is_admin AS "isAdmin"
 			FROM restaurants_users
-			WHERE restaurant_id = $1 ANE user_id = $2`,
+			WHERE restaurant_id = $1 AND user_id = $2`,
 			[ restaurantId, userId ]
 		);
 		return result.rows[0];

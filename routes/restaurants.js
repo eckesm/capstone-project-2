@@ -16,6 +16,9 @@ const MealPeriod = require('../models/mealPeriod');
 const MealPeriod_Category = require('../models/mealPeriod_category');
 const DefaultSale = require('../models/defaultSale');
 const Invoice = require('../models/invoice');
+const Expense = require('../models/expense');
+
+// var RestaurantController = require('../controllers/restaurant.controllers');
 
 const restaurantNewSchema = require('../schemas/restaurantNew.json');
 const restaurantUpdateSchema = require('../schemas/restaurantUpdate.json');
@@ -53,26 +56,27 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
  * Authorization: ensure logged in.
  * Access: all restaurant users.
  */
+// router.get('/:id', ensureLoggedIn, RestaurantController.getRestaurant);
+
 router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
 		const userId = res.locals.user.id;
 		const restaurantId = req.params.id;
 
-		// Check that user is admin for restaurant
+		// Check that user has access to restaurant
 		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
 			const restaurant = await Restaurant.get(restaurantId);
-
-			// if (!restaurant) {
-			// 	return res.status(200).json({ message: 'Restaurant does not exist.' });
-			// }
-
 			restaurant.mealPeriods = await MealPeriod.getAllForRestaurant(restaurantId);
 			restaurant.categories = await Category.getAllForRestaurant(restaurantId);
 			restaurant.catGroups = await CatGroup.getAllForRestaurant(restaurantId);
 			restaurant.mealPeriod_categories = await MealPeriod_Category.getAllForRestaurant(restaurantId);
 			restaurant.invoices = await Invoice.getAllForRestaurant(restaurantId);
+			restaurant.expenses = await Expense.getAllForRestaurant(restaurantId);
 			restaurant.defaultSales = await DefaultSale.getAllForRestaurant(restaurantId);
+
+			const access = await Restaurant_User.lookup(restaurantId, userId);
+			restaurant.isAdmin = access.isAdmin;
 
 			return res.status(200).json({ restaurant });
 		}

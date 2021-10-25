@@ -42,7 +42,10 @@ class Restaurant {
 			[ id ]
 		);
 		const restaurant = result.rows[0];
-		if (!restaurant) throw new NotFoundError(`There is no restaurant with the id ${id}.`);
+		// if (!restaurant) throw new NotFoundError(`There is no restaurant with the id ${id}.`);
+		if (!restaurant) {
+			return 'NotFound';
+		}
 
 		const users = await Restaurant_User.getAllRestaurantUsers(id);
 

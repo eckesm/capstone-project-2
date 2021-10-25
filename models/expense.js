@@ -61,6 +61,22 @@ class Expense {
 		return result.rows;
 	}
 
+	/** GET ALL FOR RESTAURANT
+	 * Returns array of all expenses associated with a restaurant.
+	 * 
+	 * Accepts: restaurantId
+	 * Returns: [{id, restaurantId, categoryId, invoiceId, amount, notes},...]
+	 */
+	static async getAllForRestaurant(restaurantId) {
+		const result = await db.query(
+			`SELECT id, restaurant_id AS "restaurantId", category_id AS "categoryId", invoice_id AS "invoiceId", amount, notes, notes
+			FROM expenses
+			WHERE restaurant_id = $1`,
+			[ restaurantId ]
+		);
+		return result.rows;
+	}
+
 	/** UPDATE
 	 * Replace expense's categoryId, amount, notes.
 	 * 
@@ -81,7 +97,7 @@ class Expense {
 	}
 
 	/** REMOVE
-	 * Deletes ane expense from the database.
+	 * Deletes an expense from the database.
 	 * 
 	 * Accepts: id
 	 * Returns: (nothing)

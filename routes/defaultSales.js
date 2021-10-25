@@ -4,6 +4,7 @@ const express = require('express');
 const router = new express.Router();
 const jsonschema = require('jsonschema');
 
+const { BadRequestError } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
 const { checkMealPeriodExists } = require('../helpers/checkExist');
 const { checkUserIsRestAccess } = require('../helpers/checkAccess');

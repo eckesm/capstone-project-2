@@ -26,6 +26,31 @@ async function checkCategoryAndGroup(categoryId, catGroupId) {
 	);
 }
 
+async function checkCatGroupAndRestaurant(catGroupId, restaurantId) {
+	const catGroupRes = await db.query(
+		`SELECT id, restaurant_id AS "restaurantId"
+		FROM cat_groups
+		WHERE id = $1`,
+		[ catGroupId ]
+	);
+	const catGroup = catGroupRes.rows[0];
+	if (!catGroup) throw new NotFoundError(`There is no category group with id ${catGroupId}.`);
+
+	const restaurantRes = await db.query(
+		`SELECT id
+		FROM restaurants
+		WHERE id = $1`,
+		[ restaurantId ]
+	);
+	const restaurant = restaurantRes.rows[0];
+	if (!restaurant) throw new NotFoundError(`There is no restaurant with id ${restaurantId}.`);
+
+	if (catGroup.restaurantId === restaurant.id) return true;
+	throw new BadRequestError(
+		`Category group ${catGroupId} is not associated with retaurant ${restaurantId}.`
+	);
+}
+
 async function checkCategoryMealPeriod(categoryId, mealPeriodId) {
 	const categoryRes = await db.query(
 		`SELECT id, restaurant_id AS "restaurantId"
@@ -146,6 +171,7 @@ async function checkExpenseInvoiceCategory(expenseId, invoiceId, categoryId) {
 
 module.exports = {
 	checkCategoryAndGroup,
+	checkCatGroupAndRestaurant,
 	checkCategoryMealPeriod,
 	checkInvoiceCategory,
 	// checkInvoiceCategoryRestaurant,

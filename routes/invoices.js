@@ -67,8 +67,7 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 		if (checkAccess) {
 			const restaurant = await Restaurant.get(restaurantId);
 			invoice.restaurantName = restaurant.name;
-			const expenses = await Expense.getAllInvoiceExpenses(invoiceId);
-			invoice.expenses = expenses;
+			invoice.expenses = await Expense.getAllForInvoice(invoiceId);
 
 			return res.status(200).json({ invoice });
 		}
@@ -127,6 +126,7 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
 			const invoice = await Invoice.update(invoiceId, req.body);
+			invoice.expenses = await Expense.getAllForInvoice(invoiceId);
 			return res.status(200).json({ invoice });
 		}
 	} catch (error) {
