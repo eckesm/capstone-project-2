@@ -3,7 +3,7 @@
 const db = require('../db');
 const { NotFoundError } = require('../expressError');
 const { checkRestaurantExists } = require('../helpers/checkExist');
-const { checkExpenseInvoiceCategory } = require('../helpers/checkSameRestaurant');
+const { checkExpenseInvoiceCategory, checkInvoiceCategory } = require('../helpers/checkSameRestaurant');
 
 class Expense {
 	/** REGISTER

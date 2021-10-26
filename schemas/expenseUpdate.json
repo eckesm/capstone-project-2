@@ -39,7 +39,7 @@
             "title": "The amount schema",
             "maximum": 99999999,
             "minimum": -99999999,
-            "type": "integer"
+            "type": "number"
         },
         "notes": {
             "$id": "#/properties/notes",
