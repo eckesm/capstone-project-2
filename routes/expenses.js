@@ -101,6 +101,41 @@ router.get('/invoices/:invoiceId', ensureLoggedIn, async function(req, res, next
 	}
 });
 
+/** GET ALL /restaurants/[restaurantId]/startdate/[startDate]/enddate/[endDate]
+ * Gets all expenses for a restaurant over a given period.
+ 
+ * Returns JSON: {expenses: [{id, restaurantId, categoryId, invoiceId, amount, notes},...]}
+
+ * Authorization: ensure logged in.
+ * Access: any restaurant user.
+ */
+router.get('/restaurants/:restaurantId/startdate/:startDate/enddate/:endDate', ensureLoggedIn, async function(
+	req,
+	res,
+	next
+) {
+	try {
+		const userId = res.locals.user.id;
+		const { restaurantId, startDate, endDate } = req.params;
+
+		// Check that user has access to the restaurant
+		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
+		if (checkAccess) {
+			const invoices = await Invoice.getDatesForRestaurant(restaurantId, startDate, endDate);
+			// console.log(invoices);
+			const expenses = [];
+			for (let i = 0; i < invoices.length; i++) {
+				let invoice = invoices[i];
+				const invExpenses = await Expense.getAllForInvoice(invoice.id);
+				expenses.push(...invExpenses);
+			}
+			return res.status(200).json({ expenses });
+		}
+	} catch (error) {
+		return next(error);
+	}
+});
+
 /** PUT /[id]
  * Updates information for an expense.
  * 

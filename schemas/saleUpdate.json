@@ -26,7 +26,7 @@
 		},
 		"actualSales": {
 			"$id": "#/properties/actualSales",
-			"type": "number",
+			"type": [ "integer", "null" ],
 			"title": "The actualSales schema",
 			"maximum": 99999999,
 			"minimum": -99999999,

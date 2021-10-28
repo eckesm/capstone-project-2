@@ -2,7 +2,7 @@
 
 const db = require('../db');
 const { BadRequestError, NotFoundError } = require('../expressError');
-const { checkRestaurantExists, checkMealPeriodCatExists,checkSaleExists } = require('../helpers/checkExist');
+const { checkRestaurantExists, checkMealPeriodCatExists, checkSaleExists } = require('../helpers/checkExist');
 
 class Sale {
 	/** REGISTER
@@ -58,6 +58,24 @@ class Sale {
 		return sale;
 	}
 
+	/** GET FOR RESTAURANT & DATE 
+	 * Get all records for a restaurant on a date.
+	 * 
+	 * Accepts: restaurantId, date
+	 * Returns: {id, restaurantId, mealPeriodCatId, date, expectedSales, actualSales, note}
+	 * 
+	 * Throws NotFoundError if sale record does not exist.
+	 */
+	static async restaurantDate(restaurantId, date) {
+		const result = await db.query(
+			`SELECT id, restaurant_id AS "restaurantId", meal_period_category_id AS "mealPeriodCatId", date, expected_sales AS "expectedSales", actual_sales AS "actualSales", notes
+			FROM sales
+			WHERE restaurant_id = $1 AND date = $2`,
+			[ restaurantId, date ]
+		);
+		return result.rows;
+	}
+
 	/** LOOKUP 
 	 * Lookup a single sale record.
 	 * 
@@ -66,17 +84,17 @@ class Sale {
 	 * 
 	 * Throws NotFoundError if sale record does not exist.
 	 */
-	static async lookup(restaurantId, mealPeriodCatId, date) {
-		const result = await db.query(
-			`SELECT id, restaurant_id AS "restaurantId", meal_period_category_id AS "mealPeriodCatId", date, expected_sales AS "expectedSales", actual_sales AS "actualSales", notes
-			FROM sales
-			WHERE restaurant_id = $1 AND meal_period_category_id = $2 AND date = $3`,
-			[ restaurantId, mealPeriodCatId, date ]
-		);
-		const sale = result.rows[0];
-		if (!sale) throw new NotFoundError(`There is no matching sale record.`);
-		return sale;
-	}
+	// static async lookup(restaurantId, mealPeriodCatId, date) {
+	// 	const result = await db.query(
+	// 		`SELECT id, restaurant_id AS "restaurantId", meal_period_category_id AS "mealPeriodCatId", date, expected_sales AS "expectedSales", actual_sales AS "actualSales", notes
+	// 		FROM sales
+	// 		WHERE restaurant_id = $1 AND meal_period_category_id = $2 AND date = $3`,
+	// 		[ restaurantId, mealPeriodCatId, date ]
+	// 	);
+	// 	const sale = result.rows[0];
+	// 	if (!sale) throw new NotFoundError(`There is no matching sale record.`);
+	// 	return sale;
+	// }
 
 	/** UPDATE
 	 * Updates expected sales, actual sales, and notes for a sale record.
@@ -85,8 +103,8 @@ class Sale {
 	 * Returns: {id, restaurantId, name, catGroupId, cogsPercent, notes}
 	 */
 	static async update(id, { expectedSales, actualSales, notes }) {
-		await checkSaleExists(id)
-		
+		await checkSaleExists(id);
+
 		const result = await db.query(
 			`UPDATE sales
 			SET expected_sales = $1, actual_sales = $2, notes = $3

@@ -55,7 +55,7 @@ class Invoice {
 	}
 
 	/** GET ALL FOR RESTAURANT
-	 * Returns array of all categories associated with a restaurant.
+	 * Returns array of all invoices associated with a restaurant.
 	 * 
 	 * Accepts: restaurantId
 	 * Returns: [{id, restaurantId, date, invoice, vendor, total, notes},...]
@@ -68,6 +68,24 @@ class Invoice {
 			FROM invoices
 			WHERE restaurant_id = $1`,
 			[ restaurantId ]
+		);
+		return result.rows;
+	}
+
+	/** GET DATE RANGE FOR RESTAURANT
+	 * Returns array of all invoice in a given date range associated with a restaurant.
+	 * 
+	 * Accepts: restaurantId, startDate, endDate
+	 * Returns: [{id, restaurantId, date, invoice, vendor, total, notes},...]
+	 */
+	static async getDatesForRestaurant(restaurantId, startDate, endDate) {
+		await checkRestaurantExists(restaurantId);
+
+		const result = await db.query(
+			`SELECT id, restaurant_id AS "restaurantId", date, invoice, vendor, total, notes
+			FROM invoices
+			WHERE restaurant_id = $1 AND date >= $2 AND date <= $3`,
+			[ restaurantId, startDate, endDate ]
 		);
 		return result.rows;
 	}

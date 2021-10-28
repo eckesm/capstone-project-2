@@ -100,6 +100,34 @@ router.get('/restaurants/:restaurantId', ensureLoggedIn, async function(req, res
 	}
 });
 
+/** GET /restaurants/[restaurantId]/startdate/[startDate]/enddate/[endDate]
+ * Gets all invoices for a restaurant over a given date range.
+ 
+ * Returns JSON: {invoices: [{id, restaurantId, date, invoice, vendor, total, notes},...]}
+
+ * Authorization: ensure logged in.
+ * Access: any restaurant user.
+ */
+router.get('/restaurants/:restaurantId/startdate/:startDate/enddate/:endDate', ensureLoggedIn, async function(
+	req,
+	res,
+	next
+) {
+	try {
+		const userId = res.locals.user.id;
+		const { restaurantId, startDate, endDate } = req.params;
+
+		// Check that user has access to the restaurant
+		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
+		if (checkAccess) {
+			const invoices = await Invoice.getDatesForRestaurant(restaurantId, startDate, endDate);
+			return res.status(200).json({ invoices });
+		}
+	} catch (error) {
+		return next(error);
+	}
+});
+
 /** PUT /[id]
  * Updates information for an invoice.
  * 

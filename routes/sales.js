@@ -6,7 +6,7 @@ const jsonschema = require('jsonschema');
 
 const { BadRequestError } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
-const { checkMealPeriodExists } = require('../helpers/checkExist');
+const { checkMealPeriodCatExists } = require('../helpers/checkExist');
 const { checkUserIsRestAccess } = require('../helpers/checkAccess');
 
 const Sale = require('../models/sale');
@@ -34,7 +34,7 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
 		const userId = res.locals.user.id;
 		const { restaurantId, mealPeriodCatId } = req.body;
 
-		await checkMealPeriodExists(mealPeriodCatId);
+		await checkMealPeriodCatExists(mealPeriodCatId);
 
 		// Check that user has access to the restaurant
 		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
@@ -67,6 +67,30 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
 			return res.status(200).json({ sale });
+		}
+	} catch (error) {
+		return next(error);
+	}
+});
+
+/** GET FOR RESTAURANT & DATE /restaurant/[restaurantId]/date/[date]
+ * Gets all sale records for a resaurant on a particular date.
+ 
+ * Returns JSON: {sales: [{id, restaurantId, mealPeriodCatId, date, expectedSales, actualSales, notes}...]}
+
+ * Authorization: ensure logged in.
+ * Access: any restaurant user.
+ */
+router.get('/restaurants/:restaurantId/date/:date', ensureLoggedIn, async function(req, res, next) {
+	try {
+		const userId = res.locals.user.id;
+		const { restaurantId, date } = req.params;
+
+		// Check that user has access to the restaurant
+		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
+		if (checkAccess) {
+			const sales = await Sale.restaurantDate(restaurantId, date);
+			return res.status(200).json({ sales });
 		}
 	} catch (error) {
 		return next(error);

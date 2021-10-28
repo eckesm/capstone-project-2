@@ -76,6 +76,22 @@ class Expense {
 		);
 		return result.rows;
 	}
+	
+	/** GET ALL DATES FOR RESTAURANT
+	 * Returns array of all expenses associated with a restaurant over a given date range.
+	 * 
+	 * Accepts: restaurantId, startDate, endDate
+	 * Returns: [{id, restaurantId, categoryId, invoiceId, amount, notes},...]
+	 */
+	// static async getDatesForRestaurant(restaurantId, startDate, endDate) {
+	// 	const result = await db.query(
+	// 		`SELECT id, restaurant_id AS "restaurantId", category_id AS "categoryId", invoice_id AS "invoiceId", amount, notes, notes
+	// 		FROM expenses
+	// 		WHERE restaurant_id = $1 AND date >= $2 AND date <= $3`,
+	// 		[ restaurantId, startDate, endDate ]
+	// 	);
+	// 	return result.rows;
+	// }
 
 	/** UPDATE
 	 * Replace expense's categoryId, amount, notes.
