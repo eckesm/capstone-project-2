@@ -61,7 +61,7 @@ class Restaurant {
 			u.id = user.id;
 			u.firstName = user.firstName;
 			u.lastName = user.lastName;
-			u.emailAddres = user.emailAddress;
+			u.emailAddress = user.emailAddress;
 			delete u.restaurantId;
 			delete u.userId;
 		}

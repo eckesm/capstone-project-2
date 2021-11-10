@@ -78,6 +78,13 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 			const access = await Restaurant_User.lookup(restaurantId, userId);
 			restaurant.isAdmin = access.isAdmin;
 
+			if (restaurant.ownerId === userId) {
+				restaurant.isOwner = true;
+			}
+			else {
+				restaurant.isOwner = false;
+			}
+
 			return res.status(200).json({ restaurant });
 		}
 	} catch (error) {

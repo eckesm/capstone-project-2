@@ -6,7 +6,7 @@ const jsonschema = require('jsonschema');
 
 const { BadRequestError } = require('../expressError');
 const { createToken } = require('../helpers/tokens');
-const { ensureCorrectUser } = require('../middleware/auth');
+const { ensureCorrectUser, ensureLoggedIn } = require('../middleware/auth');
 
 const User = require('../models/user');
 
@@ -60,6 +60,22 @@ router.get('/token', async function(req, res, next) {
 router.get('/:id', ensureCorrectUser, async function(req, res, next) {
 	try {
 		const user = await User.get(req.params.id);
+		return res.status(200).json({ user });
+	} catch (error) {
+		return next(error);
+	}
+});
+
+/** GET /[emailAddress]
+ * Gets basic user information by email address.
+ * 
+ * Returns JSON: {user: {id, emailAddress, firstName, lastName}}
+ * 
+ * Authorization: ensure logged in.
+ */
+router.get('/email-address/:emailAddress', ensureLoggedIn, async function(req, res, next) {
+	try {
+		const user = await User.getByEmailAddress(req.params.emailAddress);
 		return res.status(200).json({ user });
 	} catch (error) {
 		return next(error);

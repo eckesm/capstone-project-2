@@ -16,7 +16,7 @@
 	"properties": {
 		"expectedSales": {
 			"$id": "#/properties/expectedSales",
-			"type": "integer",
+			"type": "number",
 			"title": "The expectedSales schema",
 			"maximum": 99999999,
 			"minimum": -99999999,
@@ -26,7 +26,7 @@
 		},
 		"actualSales": {
 			"$id": "#/properties/actualSales",
-			"type": [ "integer", "null" ],
+			"type": [ "number", "null" ],
 			"title": "The actualSales schema",
 			"maximum": 99999999,
 			"minimum": -99999999,

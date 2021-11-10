@@ -49,7 +49,7 @@
 			"title": "The expectedSales schema",
 			"maximum": 99999999,
 			"minimum": -99999999,
-			"type": "integer"
+			"type": "number"
 		},
 		"actualSales": {
 			"$id": "#/properties/actualSales",
@@ -59,7 +59,7 @@
 			"title": "The actualSales schema",
 			"maximum": 99999999,
 			"minimum": -99999999,
-			"type": [ "integer", "null" ]
+			"type": [ "number", "null" ]
 		},
 		"notes": {
 			"$id": "#/properties/notes",

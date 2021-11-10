@@ -72,7 +72,7 @@ class User {
 	 * Get a single user by ID.
 	 * 
 	 * Accepts: id
-	 * Returns: {id, emailAddress, firstName, lastName}
+	 * Returns: {id, emailAddress, firstName, lastName, restaurants}
 	 * 
 	 * Throws NotFoundError if user does not exist.
 	 */
@@ -111,6 +111,28 @@ class User {
 		}
 
 		user.restaurants = restaurants;
+		return user;
+	}
+
+	/** GET BY EMAIL ADDRESS
+	 * Get a basic user information by email address.
+	 * 
+	 * Accepts: id
+	 * Returns: {id, emailAddress, firstName, lastName}
+	 * 
+	 * Throws NotFoundError if user does not exist.
+	 */
+	static async getByEmailAddress(emailAddress) {
+		const result = await db.query(
+			`SELECT id, email_address AS "emailAddress", first_name AS "firstName", last_name AS "lastName"
+            FROM users
+            WHERE email_address = $1`,
+			[ emailAddress ]
+		);
+
+		const user = result.rows[0];
+		if (!user) throw new NotFoundError(`There is no user with the email address ${emailAddress}.`);
+
 		return user;
 	}
 
