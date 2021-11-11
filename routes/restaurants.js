@@ -42,11 +42,269 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
 
 		const ownerId = res.locals.user.id;
 		const restaurant = await Restaurant.register(ownerId, req.body);
+
+		// Add default restaurant settings to newly created restaurant.
+		await starterRestaurantSettings(restaurant.id);
+
 		return res.status(201).json({ restaurant });
 	} catch (error) {
 		return next(error);
 	}
 });
+
+async function starterRestaurantSettings(restaurantId) {
+	// create initial meal periods
+	const MealPeriodBrunch = await MealPeriod.register({
+		restaurantId,
+		name         : 'Brunch',
+		notes        : 'Only on the weekend; replaced by Lunch during the week.'
+	});
+	const MealPeriodLunch = await MealPeriod.register({
+		restaurantId,
+		name         : 'Lunch',
+		notes        : 'Only on weekdays; replaced by Brunch on the weeekend.'
+	});
+	const MealPeriodDinner = await MealPeriod.register({
+		restaurantId,
+		name         : 'Dinner'
+	});
+
+	// create initial category groups
+	const CatGroupFood = await CatGroup.register({
+		restaurantId,
+		name         : 'Food & Non-Alcoholic Beverages'
+	});
+	const CatGroupAlcohol = await CatGroup.register({
+		restaurantId,
+		name         : 'Alcoholic Beverages'
+	});
+	const CatGroupRetail = await CatGroup.register({
+		restaurantId,
+		name         : 'Retail'
+	});
+
+	// create initial categories
+	const CategoryFood = await Category.register({
+		restaurantId,
+		name         : 'Food',
+		catGroupId   : CatGroupFood.id,
+		cogsPercent  : '0.35'
+	});
+	const CategoryNABev = await Category.register({
+		restaurantId,
+		name         : 'Non-Alcoholic Beverages',
+		catGroupId   : CatGroupFood.id,
+		cogsPercent  : '0.1'
+	});
+	const CategoryBeer = await Category.register({
+		restaurantId,
+		name         : 'Beer',
+		catGroupId   : CatGroupAlcohol.id,
+		cogsPercent  : '0.15'
+	});
+	const CategoryLiquor = await Category.register({
+		restaurantId,
+		name         : 'Liquor',
+		catGroupId   : CatGroupAlcohol.id,
+		cogsPercent  : '0.2'
+	});
+	const CategoryWine = await Category.register({
+		restaurantId,
+		name         : 'Wine',
+		catGroupId   : CatGroupAlcohol.id,
+		cogsPercent  : '0.3'
+	});
+	// const CategoryClothing = await Category.register({
+	// 	restaurantId,
+	// 	name         : 'Clothing',
+	// 	catGroupId   : CatGroupRetail.id,
+	// 	cogsPercent  : '0.35'
+	// });
+	// const CategoryCookbooks = await Category.register({
+	// 	restaurantId,
+	// 	name         : 'Cookbooks',
+	// 	catGroupId   : CatGroupRetail.id,
+	// 	cogsPercent  : '0.4'
+	// });
+	const CategoryOther = await Category.register({
+		restaurantId,
+		name         : 'Retail',
+		catGroupId   : CatGroupRetail.id,
+		cogsPercent  : '0.25'
+	});
+
+	// create initial default sales
+	const DefaultSalesWednesdayDinner = await DefaultSale.register({
+		restaurantId,
+		mealPeriodId : MealPeriodDinner.id,
+		dayId        : '3',
+		total        : '6000'
+	});
+	const DefaultSalesThursdayDinner = await DefaultSale.register({
+		restaurantId,
+		mealPeriodId : MealPeriodDinner.id,
+		dayId        : '4',
+		total        : '8000'
+	});
+	const DefaultSalesFridayLunch = await DefaultSale.register({
+		restaurantId,
+		mealPeriodId : MealPeriodLunch.id,
+		dayId        : '5',
+		total        : '5000'
+	});
+	const DefaultSalesFridayDinner = await DefaultSale.register({
+		restaurantId,
+		mealPeriodId : MealPeriodDinner.id,
+		dayId        : '5',
+		total        : '10000'
+	});
+	const DefaultSalesSaturdayBrunch = await DefaultSale.register({
+		restaurantId,
+		mealPeriodId : MealPeriodBrunch.id,
+		dayId        : '6',
+		total        : '8000'
+	});
+	const DefaultSalesSaturdayDinner = await DefaultSale.register({
+		restaurantId,
+		mealPeriodId : MealPeriodDinner.id,
+		dayId        : '6',
+		total        : '10000'
+	});
+	const DefaultSalesSundayBrunch = await DefaultSale.register({
+		restaurantId,
+		mealPeriodId : MealPeriodBrunch.id,
+		dayId        : '7',
+		total        : '6000'
+	});
+	const DefaultSalesSundayDinner = await DefaultSale.register({
+		restaurantId,
+		mealPeriodId : MealPeriodDinner.id,
+		dayId        : '7',
+		total        : '4000'
+	});
+
+	// create initial default sales percentages
+	const MealPeriodCatBrunchBeer = await MealPeriod_Category.register(
+		restaurantId,
+		MealPeriodBrunch.id,
+		CategoryBeer.id,
+		{
+			salesPercentOfPeriod : '0.15'
+		}
+	);
+	const MealPeriodCatBrunchFood = await MealPeriod_Category.register(
+		restaurantId,
+		MealPeriodBrunch.id,
+		CategoryFood.id,
+		{
+			salesPercentOfPeriod : '0.5'
+		}
+	);
+	const MealPeriodCatBrunchLiquor = await MealPeriod_Category.register(
+		restaurantId,
+		MealPeriodBrunch.id,
+		CategoryLiquor.id,
+		{
+			salesPercentOfPeriod : '0.15'
+		}
+	);
+	const MealPeriodCatBrunchNABev = await MealPeriod_Category.register(
+		restaurantId,
+		MealPeriodBrunch.id,
+		CategoryNABev.id,
+		{
+			salesPercentOfPeriod : '0.05'
+		}
+	);
+	const MealPeriodCatBrunchWine = await MealPeriod_Category.register(
+		restaurantId,
+		MealPeriodBrunch.id,
+		CategoryWine.id,
+		{
+			salesPercentOfPeriod : '0.15'
+		}
+	);
+	const MealPeriodCatDinnerBeer = await MealPeriod_Category.register(
+		restaurantId,
+		MealPeriodDinner.id,
+		CategoryBeer.id,
+		{
+			salesPercentOfPeriod : '0.1'
+		}
+	);
+	const MealPeriodCatDinnerFood = await MealPeriod_Category.register(
+		restaurantId,
+		MealPeriodDinner.id,
+		CategoryFood.id,
+		{
+			salesPercentOfPeriod : '0.5'
+		}
+	);
+	const MealPeriodCatDinnerLiquor = await MealPeriod_Category.register(
+		restaurantId,
+		MealPeriodDinner.id,
+		CategoryLiquor.id,
+		{
+			salesPercentOfPeriod : '0.1'
+		}
+	);
+	const MealPeriodCatDinnerNABev = await MealPeriod_Category.register(
+		restaurantId,
+		MealPeriodDinner.id,
+		CategoryNABev.id,
+		{
+			salesPercentOfPeriod : '0.05'
+		}
+	);
+	const MealPeriodCatDinnerWine = await MealPeriod_Category.register(
+		restaurantId,
+		MealPeriodDinner.id,
+		CategoryWine.id,
+		{
+			salesPercentOfPeriod : '0.25'
+		}
+	);
+	const MealPeriodCatLunchBeer = await MealPeriod_Category.register(
+		restaurantId,
+		MealPeriodLunch.id,
+		CategoryBeer.id,
+		{
+			salesPercentOfPeriod : '0.1'
+		}
+	);
+	const MealPeriodCatLunchFood = await MealPeriod_Category.register(
+		restaurantId,
+		MealPeriodLunch.id,
+		CategoryFood.id,
+		{
+			salesPercentOfPeriod : '0.65'
+		}
+	);
+	const MealPeriodCatLunchLiquor = await MealPeriod_Category.register(
+		restaurantId,
+		MealPeriodLunch.id,
+		CategoryLiquor.id,
+		{
+			salesPercentOfPeriod : '0.05'
+		}
+	);
+	const MealPeriodCatLunchNABev = await MealPeriod_Category.register(
+		restaurantId,
+		MealPeriodLunch.id,
+		CategoryNABev.id,
+		{
+			salesPercentOfPeriod : '0.1'
+		}
+	);
+	const MealPeriodCatLunchWine = await MealPeriod_Category.register(
+		restaurantId,
+		MealPeriodLunch.id,
+		CategoryWine.id,
+		{
+			salesPercentOfPeriod : '0.1'
+		}
+	);
+}
 
 /** GET /[id]
  * Gets restaurant informaion for a single restaurant.

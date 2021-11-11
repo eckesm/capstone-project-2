@@ -16,7 +16,7 @@ class MealPeriod_Category {
 	 * 
 	 * Throws BadRequestError if association is not possible or if duplicate.
      */
-	static async register(restaurantId, mealPeriodId, categoryId, { salesPercentOfPeriod, notes }) {
+	static async register(restaurantId, mealPeriodId, categoryId, { salesPercentOfPeriod, notes='' }) {
 		await checkRestaurantExists(restaurantId);
 		await checkCategoryMealPeriod(categoryId, mealPeriodId);
 

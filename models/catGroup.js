@@ -13,7 +13,7 @@ class CatGroup {
      * 
      * Throws BadRequestError if name is a duplicate.
      */
-	static async register({ restaurantId, name, notes }) {
+	static async register({ restaurantId, name, notes = '' }) {
 		await checkRestaurantExists(restaurantId);
 
 		const duplicateCheck = await db.query(

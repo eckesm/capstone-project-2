@@ -14,7 +14,7 @@ class Category {
      * 
      * Throws BadRequestError if name is a duplicate.
      */
-	static async register({ restaurantId, name, catGroupId, cogsPercent, notes }) {
+	static async register({ restaurantId, name, catGroupId, cogsPercent, notes='' }) {
 		// await checkCatGroupExists(catGroupId);
 		if (catGroupId) {
 			await checkCatGroupAndRestaurant(catGroupId, restaurantId);
