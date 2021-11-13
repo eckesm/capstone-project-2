@@ -4,7 +4,7 @@ const express = require('express');
 const router = new express.Router();
 const jsonschema = require('jsonschema');
 
-const { BadRequestError } = require('../expressError');
+const { BadRequestError, UnauthrorizedError } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
 const { checkUserIsRestAccess, checkUserIsRestAdmin } = require('../helpers/checkAccess');
 
@@ -323,7 +323,9 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 
 		// Check that user has access to restaurant
 		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
-		if (checkAccess) {
+		// console.log(checkAccess)
+
+		if (checkAccess.status) {
 			const restaurant = await Restaurant.get(restaurantId);
 			restaurant.mealPeriods = await MealPeriod.getAllForRestaurant(restaurantId);
 			restaurant.categories = await Category.getAllForRestaurant(restaurantId);
@@ -444,6 +446,12 @@ router.put('/:restaurantId/users/:updateUserId', ensureLoggedIn, async function(
 		const isAdmin = req.body.isAdmin || false;
 		const { restaurantId, updateUserId } = req.params;
 
+		// Check that the user to update is not owner
+		const restaurant = await Restaurant.get(restaurantId);
+		if (restaurant.ownerId == updateUserId) {
+			throw new UnauthrorizedError(`Cannot update the owner's restaurant association.`);
+		}
+
 		// Check that user is admin for restaurant
 		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
 		if (checkAdmin) {
@@ -468,11 +476,25 @@ router.delete('/:restaurantId/users/:deleteUserId', ensureLoggedIn, async functi
 		const userId = res.locals.user.id;
 		const { restaurantId, deleteUserId } = req.params;
 
-		// Check that user is admin for restaurant
-		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
+		// Check that user to delete is not owner
+		const restaurant = await Restaurant.get(restaurantId);
+		if (restaurant.ownerId == deleteUserId) {
+			throw new UnauthrorizedError(`Cannot delete the owner's restaurant association.`);
+		}
+
+		let checkAdmin = false;
+		// Allow delete if user is removing self regardless of if user is an admin
+		if (userId == deleteUserId) {
+			checkAdmin = true;
+		}
+		else {
+			// Check that user is admin for restaurant
+			checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
+		}
+
 		if (checkAdmin) {
 			await Restaurant_User.remove(restaurantId, deleteUserId);
-			return res.status(201).json({ deleted: { restaurantId, userId: deleteUserId } });
+			return res.status(200).json({ deleted: { restaurantId, userId: deleteUserId } });
 		}
 	} catch (error) {
 		return next(error);

@@ -7,7 +7,7 @@ const jsonschema = require('jsonschema');
 const { BadRequestError } = require('../expressError');
 const { ensureLoggedIn } = require('../middleware/auth');
 const { checkMealPeriodExists } = require('../helpers/checkExist');
-const { checkUserIsRestAccess } = require('../helpers/checkAccess');
+const { checkUserIsRestAccess, checkUserIsRestAdmin } = require('../helpers/checkAccess');
 
 const DefaultSale = require('../models/defaultSale');
 
@@ -36,9 +36,9 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
 
 		await checkMealPeriodExists(mealPeriodId);
 
-		// Check that user has access to the restaurant
-		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
-		if (checkAccess) {
+		// Check that user is admin for restaurant
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
+		if (checkAdmin) {
 			const defaultSale = await DefaultSale.register(req.body);
 			return res.status(201).json({ defaultSale });
 		}
@@ -119,9 +119,9 @@ router.put('/:id', ensureLoggedIn, async function(req, res, next) {
 		const existingDefaultSale = await DefaultSale.get(defaultSaleId);
 		const restaurantId = existingDefaultSale.restaurantId;
 
-		// Check that user has access to the restaurant
-		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
-		if (checkAccess) {
+		// Check that user is admin for restaurant
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
+		if (checkAdmin) {
 			const defaultSale = await DefaultSale.update(defaultSaleId, req.body);
 			return res.status(200).json({ defaultSale });
 		}
@@ -146,9 +146,9 @@ router.delete('/:id', ensureLoggedIn, async function(req, res, next) {
 		const sale = await DefaultSale.get(defaultSaleId);
 		const restaurantId = sale.restaurantId;
 
-		// Check that user has access to the restaurant
-		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
-		if (checkAccess) {
+		// Check that user is admin for restaurant
+		const checkAdmin = await checkUserIsRestAdmin(restaurantId, userId);
+		if (checkAdmin) {
 			await DefaultSale.remove(defaultSaleId);
 			return res.status(200).json({ deleted: defaultSaleId });
 		}

@@ -34,8 +34,8 @@ async function checkUserIsRestAccess(restaurantId, userId) {
 	);
 	const restUser = result.rows[0];
 	if (restUser) return { status: true };
-	// throw new UnauthrorizedError(`User ${userId} is not authorized to access restaurant ${restaurantId}.`);
-	return { status: false, message: `User ${userId} is authorized to access restaurant ${restaurantId}.` };
+	throw new UnauthrorizedError(`User ${userId} is not authorized to access restaurant ${restaurantId}.`);
+	// return { status: false, message: `User ${userId} is not authorized to access restaurant ${restaurantId}.` };
 }
 
 /** CHECK IF ADMIN
