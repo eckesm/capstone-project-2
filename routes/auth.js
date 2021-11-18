@@ -13,6 +13,7 @@ const authTokenSchema = require('../schemas/authToken.json');
 /** POST /token
  * Accepts JSON: {emailAddress, password}
  * Returns JSON: {token}
+ * 
  */
 router.post('/token', async function(req, res, next) {
 	try {
