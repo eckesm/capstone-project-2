@@ -2,7 +2,14 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+// app.use(cors());
+const corsOptions = {
+	origin               : 'https://mre-capstone2-frontend.herokuapp.com',
+	optionsSuccessStatus : 200
+};
+app.use(cors(corsOptions));
+app.options('*', cors());
+
 app.use(express.json());
 app.use(authenticateJWT);
 
