@@ -11,10 +11,10 @@ app.use(cors(corsOptions));
 app.options('*', cors());
 
 app.use(express.json());
-app.use(authenticateJWT);
 
 const { NotFoundError } = require('./expressError');
 const { authenticateJWT } = require('./middleware/auth');
+app.use(authenticateJWT);
 
 const authRoutes = require('./routes/auth');
 const usersRoutes = require('./routes/user');
