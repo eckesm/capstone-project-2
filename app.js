@@ -1,9 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 
+// const CORS_ORIGIN_URL = process.env.CORS_ORIGIN_URL || 'http://localhost:3000';
+const { CORS_ORIGIN_URL } = require('./config');
+
+
 const app = express();
 const corsOptions = {
-	origin               : 'https://mre-capstone2-frontend.herokuapp.com',
+	// origin               : 'https://mre-capstone2-frontend.herokuapp.com',
+	// origin               : process.env.CORS_ORIGIN_URL || 'http://localhost:3001',
+	origin               : CORS_ORIGIN_URL,
 	optionsSuccessStatus : 200
 };
 app.use(cors(corsOptions));
