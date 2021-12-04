@@ -101,40 +101,6 @@ async function checkInvoiceCategory(invoiceId, categoryId) {
 	);
 }
 
-// async function checkInvoiceCategoryRestaurant(invoiceId, categoryId, restaurantId) {
-// 	const invoiceRes = await db.query(
-// 		`SELECT id, restaurant_id AS "restaurantId"
-// 		FROM invoices
-// 		WHERE id = $1`,
-// 		[ invoiceId ]
-// 	);
-// 	const invoice = invoiceRes.rows[0];
-// 	if (!invoice) throw new NotFoundError(`There is no invoice with id ${invoiceId}.`);
-
-// 	const categoryRes = await db.query(
-// 		`SELECT id, restaurant_id AS "restaurantId"
-// 		FROM categories
-// 		WHERE id = $1`,
-// 		[ categoryId ]
-// 	);
-// 	const category = categoryRes.rows[0];
-// 	if (!category) throw new NotFoundError(`There is no category with id ${categoryId}.`);
-
-// 	const restaurantRes = await db.query(
-// 		`SELECT id
-// 		FROM restaurants
-// 		WHERE id = $1`,
-// 		[ restaurantId ]
-// 	);
-// 	const restaurant = restaurantRes.rows[0];
-// 	if (!restaurant) throw new NotFoundError(`There is no restaurant with id ${restaurantId}.`);
-
-// 	if (invoice.restaurantId === restaurantId && category.restaurantId === restaurantId) return true;
-// 	throw new BadRequestError(
-// 		`Invoice ${invoiceId} and category ${categoryId} are not both associated with restaurant ${restaurantId}.`
-// 	);
-// }
-
 async function checkExpenseInvoiceCategory(expenseId, invoiceId, categoryId) {
 	const expenseRes = await db.query(
 		`SELECT id, restaurant_id AS "restaurantId"
@@ -174,6 +140,5 @@ module.exports = {
 	checkCatGroupAndRestaurant,
 	checkCategoryMealPeriod,
 	checkInvoiceCategory,
-	// checkInvoiceCategoryRestaurant,
 	checkExpenseInvoiceCategory
 };

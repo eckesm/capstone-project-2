@@ -122,7 +122,6 @@ router.get('/restaurants/:restaurantId/startdate/:startDate/enddate/:endDate', e
 		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
 			const invoices = await Invoice.getDatesForRestaurant(restaurantId, startDate, endDate);
-			// console.log(invoices);
 			const expenses = [];
 			for (let i = 0; i < invoices.length; i++) {
 				let invoice = invoices[i];

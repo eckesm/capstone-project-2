@@ -214,9 +214,6 @@ router.get('/:mealPeriodId/categories/:categoryId', ensureLoggedIn, async functi
 		// Check that user has access to the restaurant
 		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
 		if (checkAccess) {
-			// const restaurant = await Restaurant.get(restaurantId);
-			// mealPeriod.restaurantName = restaurant.name;
-
 			return res.status(200).json({ mealPeriodCat });
 		}
 	} catch (error) {

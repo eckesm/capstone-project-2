@@ -11,9 +11,7 @@ const { checkUserExists, checkRestaurantExists } = require('./checkExist');
 	 * Throws NotFoundError if restaurant or user does not exist.
 	 */
 async function checkUserIsRestAccess(restaurantId, userId) {
-	// await checkUserExists(userId);
 	const userExists = await checkUserExists(userId);
-	// await checkRestaurantExists(restaurantId);
 	const restaurantExists = await checkRestaurantExists(restaurantId);
 
 	if (userExists === false && restaurantExists === false) {
@@ -35,7 +33,6 @@ async function checkUserIsRestAccess(restaurantId, userId) {
 	const restUser = result.rows[0];
 	if (restUser) return { status: true };
 	throw new UnauthrorizedError(`User ${userId} is not authorized to access restaurant ${restaurantId}.`);
-	// return { status: false, message: `User ${userId} is not authorized to access restaurant ${restaurantId}.` };
 }
 
 /** CHECK IF ADMIN
@@ -48,19 +45,7 @@ async function checkUserIsRestAccess(restaurantId, userId) {
 	 */
 async function checkUserIsRestAdmin(restaurantId, userId) {
 	await checkUserExists(userId);
-	// const userExists = await checkUserExists(userId);
 	await checkRestaurantExists(restaurantId);
-	// const restaurantExists = await checkRestaurantExists(restaurantId);
-
-	// if (userExists === false && restaurantExists === false) {
-	// 	return { status: false, message: `User ${userId} and restaurant ${restaurantId} do not exist.` };
-	// }
-	// if (userExists === false) {
-	// 	return { status: false, message: `User ${userId} does not exist.` };
-	// }
-	// if (restaurantExists === false) {
-	// 	return { status: false, message: `Restaurant ${restaurantId} does not exist.` };
-	// }
 
 	const result = await db.query(
 		`SELECT id, restaurant_id, user_id, is_admin
@@ -73,10 +58,6 @@ async function checkUserIsRestAdmin(restaurantId, userId) {
 	throw new UnauthrorizedError(
 		`User ${userId} is not authorized to access restaurant ${restaurantId} as an administrator.`
 	);
-	// return {
-	// 	status: false,
-	// 	message: `User ${userId} is authorized to access restaurant ${restaurantId} as an administrator.`
-	// };
 }
 
 module.exports = {

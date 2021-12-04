@@ -18,8 +18,6 @@ const DefaultSale = require('../models/defaultSale');
 const Invoice = require('../models/invoice');
 const Expense = require('../models/expense');
 
-// var RestaurantController = require('../controllers/restaurant.controllers');
-
 const restaurantNewSchema = require('../schemas/restaurantNew.json');
 const restaurantUpdateSchema = require('../schemas/restaurantUpdate.json');
 
@@ -36,7 +34,6 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
 		const validator = jsonschema.validate(req.body, restaurantNewSchema);
 		if (!validator.valid) {
 			const errors = validator.errors.map(e => e.stack);
-			// throw new BadRequestError(errors);
 			return res.status(200).json({ errors });
 		}
 
@@ -314,8 +311,6 @@ async function starterRestaurantSettings(restaurantId) {
  * Authorization: ensure logged in.
  * Access: all restaurant users.
  */
-// router.get('/:id', ensureLoggedIn, RestaurantController.getRestaurant);
-
 router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 	try {
 		const userId = res.locals.user.id;
@@ -323,7 +318,6 @@ router.get('/:id', ensureLoggedIn, async function(req, res, next) {
 
 		// Check that user has access to restaurant
 		const checkAccess = await checkUserIsRestAccess(restaurantId, userId);
-		// console.log(checkAccess)
 
 		if (checkAccess.status) {
 			const restaurant = await Restaurant.get(restaurantId);

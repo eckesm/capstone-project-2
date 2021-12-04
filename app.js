@@ -1,21 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 
-// const CORS_ORIGIN_URL = process.env.CORS_ORIGIN_URL || 'http://localhost:3000';
 const { CORS_ORIGIN_URL } = require('./config');
-
 
 const app = express();
 const corsOptions = {
-	// origin               : 'https://mre-capstone2-frontend.herokuapp.com',
-	// origin               : process.env.CORS_ORIGIN_URL || 'http://localhost:3001',
 	origin               : CORS_ORIGIN_URL,
 	optionsSuccessStatus : 200
 };
 app.use(cors(corsOptions));
 app.options('*', cors());
-// app.use(cors());
-
 app.use(express.json());
 
 const { NotFoundError } = require('./expressError');
@@ -51,11 +45,13 @@ app.use(function(req, res, next) {
 
 /** general error handler */
 app.use(function(err, req, res, next) {
+	if (process.env.NODE_ENV !== 'test') console.error(err.stack);
 	let status = err.status || 500;
+	let message = err.message;
 	return res.status(status).json({
 		error : {
-			message : err.message,
-			status  : status
+			message,
+			status
 		}
 	});
 });
