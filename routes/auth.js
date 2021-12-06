@@ -16,6 +16,8 @@ const authTokenSchema = require('../schemas/authToken.json');
  * 
  */
 router.post('/token', async function(req, res, next) {
+	console.log(req.body);
+
 	try {
 		const validator = jsonschema.validate(req.body, authTokenSchema);
 		if (!validator.valid) {
