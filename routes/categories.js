@@ -172,6 +172,7 @@ router.patch('/:categoryId/group/:catGroupId', ensureLoggedIn, async function(re
  * Access: only restaurant admins.
  */
 router.put('/:id', ensureLoggedIn, async function(req, res, next) {
+	console.log(req.body)
 	try {
 		const validator = jsonschema.validate(req.body, categoryUpdateSchema);
 		if (!validator.valid) {

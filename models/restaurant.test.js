@@ -11,7 +11,6 @@ const {
 	commonAfterEach,
 	commonAfterAll,
 	testUsers,
-	testRestaurants
 } = require('./_testCommon');
 
 beforeAll(commonBeforeAll);

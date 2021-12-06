@@ -10,7 +10,6 @@ const {
 	commonBeforeEach,
 	commonAfterEach,
 	commonAfterAll,
-	testUsers,
 	testRestaurants
 } = require('./_testCommon');
 
@@ -31,7 +30,6 @@ describe('register new meal period', function() {
 			restaurantId : testRestaurants[0]['id'],
 			...newMealPeriodData
 		});
-		console.log(newMealPeriodRes);
 		addedMealPeriod = newMealPeriodRes;
 
 		expect(newMealPeriodRes).toEqual({
