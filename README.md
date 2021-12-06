@@ -8,8 +8,8 @@ The backend is built in a Node.js ecosystem with Express.js employed as the rout
 ## Deployment & Repositories
 
 Heroku deployments:
-* Frontend: [mre-capstone2-frontend.herokuapp.com](https://mre-capstone2-frontend.herokuapp.com)
-* Backend: [mre-capstone2-backend.herokuapp.com](https://mre-capstone2-backend.herokuapp.com)
+* Frontend: [www.restobudget.com](https://www.restobudget.com)
+* Backend: [api.restobudget.com](https://api.restobudget.com)
 
 Git repositories:
 * Frontend: [github.com/eckesm/capstone-project-2-frontend](https://github.com/eckesm/capstone-project-2-frontend)
@@ -33,7 +33,7 @@ _See frontend documentation at: [https://github.com/eckesm/capstone-project-2-fr
 
 ## Backend API
 
-The frontend sends requests to a custom backend API located at [https://mre-capstone2-backend.herokuapp.com](https://mre-capstone2-backend.herokuapp.com/)
+The frontend sends requests to a custom backend API located at [https://api.restobudget.com](https://api.restobudget.com/)
 
 This API is connected to a Postgres database and is responsible for handling all CRUD features of the website.  When a new restaurant is created, the backend API automatically creates many records with default settings for the new restaurant.
 
