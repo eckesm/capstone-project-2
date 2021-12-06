@@ -10,8 +10,8 @@ const SECRET_KEY = process.env.SECRET_KEY || 'secret';
 function getDatabaseUri() {
 	return process.env.NODE_ENV === 'test'
 		? 'postgresql:///capstone2_test'
-		: // : process.env.DATABASE_URL_2 || 'postgresql:///capstone2';
-			process.env.DATABASE_URL || 'postgresql:///capstone2';
+		: process.env.DATABASE_URL_2 || 'postgresql:///capstone2';
+	// process.env.DATABASE_URL || 'postgresql:///capstone2';
 }
 
 module.exports = {
