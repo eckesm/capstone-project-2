@@ -4,12 +4,27 @@ const cors = require('cors');
 const { CORS_ORIGIN_URL } = require('./config');
 
 const app = express();
+
+const whitelist = [CORS_ORIGIN_URL]
 const corsOptions = {
-	origin               : CORS_ORIGIN_URL,
-	optionsSuccessStatus : 200
-};
-app.use(cors(corsOptions));
-app.options('*', cors());
+  origin: function (origin, callback) {
+    if (!origin || whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error("Not allowed by CORS"))
+    }
+  },
+  credentials: true,
+}
+app.use(cors(corsOptions))
+
+// const corsOptions = {
+// 	origin      : CORS_ORIGIN_URL,
+// 	optionsSuccessStatus : 200
+// };
+// app.use(cors(corsOptions));
+// app.options('*', cors());
+
 app.use(express.json());
 
 const { NotFoundError } = require('./expressError');
