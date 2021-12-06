@@ -3,7 +3,8 @@
 describe('config can come from env', function() {
 	test('config variables work', function() {
 		process.env.CORS_ORIGIN_URL = 'other';
-		process.env.DATABASE_URL_2 = 'other2';
+		// process.env.DATABASE_URL_2 = 'other2';
+		process.env.DATABASE_URL = 'other2';
 		process.env.PORT = 5000;
 		process.env.SECRET_KEY = 'abc';
 		process.env.NODE_ENV = 'other';
@@ -15,7 +16,8 @@ describe('config can come from env', function() {
 		expect(config.SECRET_KEY).toEqual('abc');
 
 		delete process.env.CORS_ORIGIN_URL;
-		delete process.env.DATABASE_URL_2;
+		// delete process.env.DATABASE_URL_2;
+		delete process.env.DATABASE_URL;
 		delete process.env.PORT;
 		delete process.env.SECRET_KEY;
 
