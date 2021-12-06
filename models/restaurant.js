@@ -15,11 +15,14 @@ class Restaurant {
 	static async register(ownerId, { name, address, phone, email, website, notes }) {
 		await checkUserExists(ownerId);
 
+		let adjustedEmail = email ? email.toLowerCase() : email;
+		let adjustedWebsite = website ? website.toLowerCase() : website;
+
 		const result = await db.query(
 			`INSERT INTO restaurants (owner_id, name, address, phone, email, website, notes)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING id, owner_id AS "ownerId", name, address, phone, email, website, notes`,
-			[ ownerId, name, address, phone, email, website, notes ]
+			[ ownerId, name, address, phone, adjustedEmail, adjustedWebsite, notes ]
 		);
 		const restaurant = result.rows[0];
 		Restaurant_User.register(restaurant.id, ownerId, true);
@@ -42,7 +45,7 @@ class Restaurant {
 			[ id ]
 		);
 		const restaurant = result.rows[0];
-		// if (!restaurant) throw new NotFoundError(`There is no restaurant with the id ${id}.`);
+
 		if (!restaurant) {
 			return 'NotFound';
 		}
@@ -79,12 +82,15 @@ class Restaurant {
 	static async update(id, { name, address, phone, email, website, notes }) {
 		await checkRestaurantExists(id);
 
+		let adjustedEmail = email ? email.toLowerCase() : email;
+		let adjustedWebsite = website ? website.toLowerCase() : website;
+
 		const result = await db.query(
 			`UPDATE restaurants
 			SET name = $1, address = $2, phone = $3, email = $4, website = $5, notes = $6
             WHERE id = $7
             RETURNING id, owner_id as "ownerId", name, address, phone, email, website, notes`,
-			[ name, address, phone, email, website, notes, id ]
+			[ name, address, phone, adjustedEmail, adjustedWebsite, notes, id ]
 		);
 		const restaurant = result.rows[0];
 		return restaurant;

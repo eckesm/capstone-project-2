@@ -22,7 +22,7 @@ class User {
 			`SELECT id, email_address, password, first_name AS "firstName", last_name AS "lastName"
 			FROM users
 			WHERE email_address = $1`,
-			[ emailAddress ]
+			[ emailAddress.toLowerCase() ]
 		);
 
 		const user = result.rows[0];
@@ -33,7 +33,7 @@ class User {
 				return user;
 			}
 		}
-		throw new UnauthrorizedError(`The entered email address (${emailAddress}) and password do not match.`);
+		throw new UnauthrorizedError(`The entered email address (${emailAddress.toLowerCase()}) and password do not match.`);
 	}
 
 	/** REGISTER
@@ -49,12 +49,12 @@ class User {
 			`SELECT email_address
             FROM users
             WHERE email_address = $1`,
-			[ emailAddress ]
+			[ emailAddress.toLowerCase() ]
 		);
 
 		if (duplicateCheck.rows[0])
 			throw new BadRequestError(
-				`The email address ${emailAddress} is already associated with an existing account.`
+				`The email address ${emailAddress.toLowerCase()} is already associated with an existing account.`
 			);
 
 		const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
@@ -62,7 +62,7 @@ class User {
 			`INSERT INTO users (email_address, first_name, last_name, password)
             VALUES ($1, $2, $3, $4)
             RETURNING id, email_address AS "emailAddress", first_name AS "firstName", last_name AS "lastName"`,
-			[ emailAddress, firstName, lastName, hashedPassword ]
+			[ emailAddress.toLowerCase(), firstName, lastName, hashedPassword ]
 		);
 		const user = result.rows[0];
 		return user;
@@ -127,11 +127,11 @@ class User {
 			`SELECT id, email_address AS "emailAddress", first_name AS "firstName", last_name AS "lastName"
             FROM users
             WHERE email_address = $1`,
-			[ emailAddress ]
+			[ emailAddress.toLowerCase() ]
 		);
 
 		const user = result.rows[0];
-		if (!user) throw new NotFoundError(`There is no user with the email address ${emailAddress}.`);
+		if (!user) throw new NotFoundError(`There is no user with the email address ${emailAddress.toLowerCase()}.`);
 
 		return user;
 	}
@@ -157,7 +157,7 @@ class User {
 		if (duplicateCheck.rows[0]) {
 			if (duplicateCheck.rows[0].id != id) {
 				throw new BadRequestError(
-					`The email address ${emailAddress} is already associated with an existing account.`
+					`The email address ${emailAddress.toLowerCase()} is already associated with an existing account.`
 				);
 			}
 		}
@@ -167,7 +167,7 @@ class User {
 			SET email_address = $2, first_name = $3, last_name = $4
             WHERE id = $1
             RETURNING id, email_address AS "emailAddress", first_name AS "firstName", last_name AS "lastName"`,
-			[ id, emailAddress, firstName, lastName ]
+			[ id, emailAddress.toLowerCase(), firstName, lastName ]
 		);
 		const user = result.rows[0];
 		return user;
