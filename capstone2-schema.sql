@@ -44,7 +44,7 @@ CREATE TABLE categories (
   name VARCHAR(50) NOT NULL,
   cat_group_id INTEGER
     REFERENCES cat_groups(id),
-  cogs_percent DECIMAL(4,4),
+  cogs_percent DECIMAL(5,4),
   notes TEXT
 );
 
@@ -64,7 +64,7 @@ CREATE TABLE meal_periods_categories (
     REFERENCES categories(id) ON DELETE CASCADE,
   meal_period_id INTEGER
     REFERENCES meal_periods(id) ON DELETE CASCADE,
-  sales_percent_of_period DECIMAL(4,4),
+  sales_percent_of_period DECIMAL(5,4),
   notes TEXT,
   PRIMARY KEY (restaurant_id, category_id, meal_period_id)
 );
