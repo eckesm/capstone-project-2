@@ -1,9 +1,9 @@
-# Restaurant Budgeting Application (_backend_)
+# RestoBudget (_backend_)
 
 ## Stack
 The frontend is built on a React framework and makes extensive use of the Redux library.  The frontend is deployed on Heroku.
 
-The backend is built in a Node.js ecosystem with Express.js employed as the routing framework.  The backend is deployed on Heroku.
+The backend is built in a Node.js ecosystem with Express.js as the routing framework and is connected to a Postgres database
 
 ## Deployment & Repositories
 
